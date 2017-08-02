@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MCompoundQuestionnaireExample</string>
+    <string name="test_question">this is a long text question please try to answer this question if you have time?</string>
+</resources>
