@@ -8,12 +8,14 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -151,12 +153,12 @@ class QuestionnaireCardView : View {
 
     var cardStatus: CardStatus = CardStatus.NONE
 
-    var cardInteractionCallbacks: CardInteractionCallbacks? =null
+    var cardInteractionCallbacks: CardInteractionCallbacks? = null
 
     private var lastX: Float = 0f
     private var lastY: Float = 0f
     var movingHorizontal = false
-    private var lastFraction: Float =0f
+    private var lastFraction: Float = 0f
     private var cardMoving = false
     private var notApplicableRadius = buttonsRadius + maxRadius
     private var notApplicableCenterX = 0f
@@ -200,7 +202,7 @@ class QuestionnaireCardView : View {
         acceptRight = 2 * padding + 4 * buttonsRadius
         acceptBottom = textHeight + 2 * padding + 2 * buttonsRadius
 
-        notApplicableCenterY = textHeight + 2 * padding + buttonsRadius
+        notApplicableCenterY = textHeight + 2 * padding - buttonsRadius
         notApplicableCenterX = measuredWidth / 2f
         if (cardStatus == CardStatus.ACCEPTED) {
             cancelLeft += buttonsRadius
@@ -224,7 +226,7 @@ class QuestionnaireCardView : View {
     }
 
     fun onCardMovement(fraction: Float) {
-        if(lastFraction == fraction){
+        if (lastFraction == fraction) {
             cardMoving = false
             invalidate()
             return
@@ -253,6 +255,19 @@ class QuestionnaireCardView : View {
                     (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
             )
             notApplicableDrawable.draw(canvas)
+            textView.isDrawingCacheEnabled = true
+            textView.setTextColor(notApplicableColor)
+            textView.textSize = textSize + 3 * lastFraction
+            textView.gravity = Gravity.CENTER_HORIZONTAL
+            textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY)
+                    , View.MeasureSpec.makeMeasureSpec(buttonsRadius.toInt(), View.MeasureSpec.AT_MOST))
+            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+            textView.text = context.getString(R.string.not_applicable)
+            textView.typeface = Typeface.DEFAULT_BOLD
+            if (textView.drawingCache != null) {
+                canvas?.drawBitmap(textView.drawingCache, padding, (notApplicableCenterY + 2 * buttonsRadius), textPaint)
+            }
+            textView.isDrawingCacheEnabled = false
         } else {
             //buttons bg
             cancelCirclePaint.color = cancelColor
@@ -287,6 +302,7 @@ class QuestionnaireCardView : View {
             textView.isDrawingCacheEnabled = true
             textView.setTextColor(textColor)
             textView.textSize = textSize
+            textView.gravity = Gravity.START
             textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(textHeight.toInt(), View.MeasureSpec.EXACTLY))
             textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)

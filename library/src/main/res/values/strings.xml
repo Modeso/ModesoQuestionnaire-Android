@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MCompoundQuestionnaire</string>
+    <string name="not_applicable">Not Applicable</string>
 </resources>
