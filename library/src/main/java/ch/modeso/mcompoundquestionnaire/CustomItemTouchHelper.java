@@ -21,6 +21,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
+import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 
 import java.util.ArrayList;
@@ -972,6 +973,9 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         final float alpha = ANGLE * dY / max;
         viewHolder.itemView.setRotation(alpha);
         viewHolder.itemView.setTranslationY(dY);
+        if (viewHolder.itemView instanceof QuestionnaireCardView) {
+            ((QuestionnaireCardView) viewHolder.itemView).onCardMovement(dY / max);
+        }
     }
 
     private void onChildDrawOver(Canvas c, RecyclerView recyclerView,
@@ -1033,7 +1037,7 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         }
     }
 
-    private void onSwiped(RecyclerView.ViewHolder viewHolder) {
+    private void onSwiped(final RecyclerView.ViewHolder viewHolder) {
         // Notify the adapter of the dismissal
         Log.d(TAG, "onSwiped: viewHolder " + viewHolder.itemView);
         if (viewHolder instanceof DemoAdapter.ViewHolder) {
@@ -1043,6 +1047,24 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         TranslateAnimation translateAnimation = new TranslateAnimation(0, -deltaX, 0, 0);
         translateAnimation.setDuration(1000);
         translateAnimation.setFillAfter(true);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                if (viewHolder.itemView instanceof QuestionnaireCardView) {
+                    ((QuestionnaireCardView) viewHolder.itemView).setMovingHorizontal(true);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ((QuestionnaireCardView) viewHolder.itemView).setMovingHorizontal(false);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
         viewHolder.itemView.startAnimation(translateAnimation);
         mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
         dismissedNo++;

@@ -155,6 +155,12 @@ class QuestionnaireCardView : View {
 
     private var lastX: Float = 0f
     private var lastY: Float = 0f
+    var movingHorizontal = false
+    private var lastFraction: Float =0f
+    private var cardMoving = false
+    private var notApplicableRadius = buttonsRadius + maxRadius
+    private var notApplicableCenterX = 0f
+    private var notApplicableCenterY = 0f
 
     constructor(context: Context) : this(context, null)
 
@@ -194,6 +200,8 @@ class QuestionnaireCardView : View {
         acceptRight = 2 * padding + 4 * buttonsRadius
         acceptBottom = textHeight + 2 * padding + 2 * buttonsRadius
 
+        notApplicableCenterY = textHeight + 2 * padding + buttonsRadius
+        notApplicableCenterX = measuredWidth / 2f
         if (cardStatus == CardStatus.ACCEPTED) {
             cancelLeft += buttonsRadius
             cancelTop += buttonsRadius
@@ -215,38 +223,64 @@ class QuestionnaireCardView : View {
         }
     }
 
+    fun onCardMovement(fraction: Float) {
+        if(lastFraction == fraction){
+            cardMoving = false
+            invalidate()
+            return
+        }
+        cardMoving = fraction > 0f && !movingHorizontal
+        notApplicableRadius = buttonsRadius + maxRadius * fraction
+        lastFraction = fraction
+        invalidate()
+    }
+
     override fun onDraw(canvas: Canvas?) {
         Log.d("Test", "onDraw")
         // background
         background = bgDrawable
 
+        if (cardMoving) {
+            notApplicableCirclePaint.color = notApplicableColor
+            notApplicableCircleRectF.set(notApplicableCenterX - notApplicableRadius
+                    , notApplicableCenterY - notApplicableRadius, notApplicableCenterX + notApplicableRadius
+                    , notApplicableCenterY + notApplicableRadius)
+            canvas?.drawOval(notApplicableCircleRectF, notApplicableCirclePaint)
+            notApplicableDrawable.bounds.set(
+                    (notApplicableCenterX - 2 * buttonsRadius / 3).toInt(),
+                    (notApplicableCenterY - 2 * buttonsRadius / 3).toInt(),
+                    (notApplicableCenterX + 2 * buttonsRadius / 3).toInt(),
+                    (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
+            )
+            notApplicableDrawable.draw(canvas)
+        } else {
+            //buttons bg
+            cancelCirclePaint.color = cancelColor
+            cancelCircleRectF.set(cancelLeft, cancelTop, cancelRight, cancelBottom)
+            canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
 
-        //buttons bg
-        cancelCirclePaint.color = cancelColor
-        cancelCircleRectF.set(cancelLeft, cancelTop, cancelRight, cancelBottom)
-        canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
-
-        acceptCirclePaint.color = acceptColor
-        acceptCircleRectF.set(acceptLeft, acceptTop, acceptRight, acceptBottom)
-        canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
+            acceptCirclePaint.color = acceptColor
+            acceptCircleRectF.set(acceptLeft, acceptTop, acceptRight, acceptBottom)
+            canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
 
 
-        //buttons icon
-        cancelDrawable.bounds?.set(
-                (padding + 2 * buttonsRadius / 3).toInt(),
-                (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt(),
-                (padding + 4 * buttonsRadius / 3).toInt(),
-                (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
-        )
-        cancelDrawable.draw(canvas)
+            //buttons icon
+            cancelDrawable.bounds?.set(
+                    (padding + 2 * buttonsRadius / 3).toInt(),
+                    (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt(),
+                    (padding + 4 * buttonsRadius / 3).toInt(),
+                    (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+            )
+            cancelDrawable.draw(canvas)
 
-        acceptDrawable.bounds?.set(
-                (2 * padding + 2 * buttonsRadius + 2 * buttonsRadius / 3).toInt(),
-                (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt(),
-                (2 * padding + 2 * buttonsRadius + 4 * buttonsRadius / 3).toInt(),
-                (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
-        )
-        acceptDrawable.draw(canvas)
+            acceptDrawable.bounds?.set(
+                    (2 * padding + 2 * buttonsRadius + 2 * buttonsRadius / 3).toInt(),
+                    (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt(),
+                    (2 * padding + 2 * buttonsRadius + 4 * buttonsRadius / 3).toInt(),
+                    (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+            )
+            acceptDrawable.draw(canvas)
+        }
 
         //text
         if (question != null) {
