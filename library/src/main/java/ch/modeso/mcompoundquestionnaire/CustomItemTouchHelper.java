@@ -220,6 +220,9 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
      */
     private VelocityTracker mVelocityTracker;
 
+    public int getDismissedNo() {
+        return dismissedNo;
+    }
 
     private final RecyclerView.OnItemTouchListener mOnItemTouchListener
             = new RecyclerView.OnItemTouchListener() {
@@ -968,7 +971,7 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     private void onChildDraw(RecyclerView recyclerView,
-                            RecyclerView.ViewHolder viewHolder, float dY) {
+                             RecyclerView.ViewHolder viewHolder, float dY) {
         int max = recyclerView.getHeight() - recyclerView.getPaddingTop();
         final float alpha = ANGLE * dY / max;
         viewHolder.itemView.setRotation(alpha);
@@ -979,8 +982,8 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     private void onChildDrawOver(Canvas c, RecyclerView recyclerView,
-                                RecyclerView.ViewHolder viewHolder,
-                                float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                                 RecyclerView.ViewHolder viewHolder,
+                                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
         sUICallback.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState,
                 isCurrentlyActive);
     }
@@ -1003,6 +1006,7 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         }
         return flags;
     }
+
     private int convertToAbsoluteDirection(int flags, int layoutDirection) {
         int masked = flags & RELATIVE_DIR_FLAGS;
         if (masked == 0) {
@@ -1043,7 +1047,10 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         if (viewHolder instanceof DemoAdapter.ViewHolder) {
             ((DemoAdapter.ViewHolder) viewHolder).setViewDismiss(DemoAdapter.ViewDismiss.DISMISSED);
         }
-        float deltaX = viewHolder.itemView.getMeasuredWidth()/2 + viewHolder.itemView.getX() - (mLowerSpace *(dismissedNo +1));
+        float widthRightPart = mLowerSpace + (float) Math.sqrt(Math.pow((viewHolder.itemView.getMeasuredWidth() - Math.sqrt(2 * Math.pow(mLowerSpace, 2))), 2) / 2);
+        float widthLeftPart = mLowerSpace + (float) Math.sqrt(Math.pow((viewHolder.itemView.getMeasuredHeight() - Math.sqrt(2 * Math.pow(mLowerSpace, 2))), 2) / 2);
+        float def = (widthRightPart + widthLeftPart - viewHolder.itemView.getMeasuredWidth()) / 2;
+        float deltaX = viewHolder.itemView.getX() + viewHolder.itemView.getMeasuredWidth() - (widthRightPart - def) - (mLowerSpace * (dismissedNo + 1));
         TranslateAnimation translateAnimation = new TranslateAnimation(0, -deltaX, 0, 0);
         translateAnimation.setDuration(1000);
         translateAnimation.setFillAfter(true);
@@ -1103,7 +1110,7 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         private float mFraction;
 
         RecoverAnimation(RecyclerView.ViewHolder viewHolder, int animationType,
-                                int actionState, float startDx, float startDy, float targetX, float targetY) {
+                         int actionState, float startDx, float startDy, float targetX, float targetY) {
             mActionState = actionState;
             mAnimationType = animationType;
             mViewHolder = viewHolder;

@@ -2,14 +2,18 @@ package ch.modeso.mcompoundquestionnaire
 
 import android.annotation.TargetApi
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
+import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 
 /**
  * Created by Hazem on 7/28/2017.
@@ -93,11 +97,19 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             field = value
             demoAdapter?.notApplicableDrawable = value
         }
+    var notApplicableArrowDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_arrow_downward)
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     var questionnaireIndicator: QuestionnaireIndicator? = null
     var recyclerView: RecyclerView? = null
     var demoAdapter: DemoAdapter? = null
     val tileManager = TileLayoutManager()
+    val textView = TextView(this.context)
+    val textPaint = TextPaint()
+    var dismissNo = 0
     private var items: MutableList<BaseModel> = mutableListOf()
 
     private val density = context.resources.displayMetrics.density
@@ -120,6 +132,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     }
 
     private fun init(attrs: AttributeSet?, defStyleAttr: Int = 0, defStyleRes: Int = 0) {
+        setWillNotDraw(false)
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MCompoundQuestionnaire, defStyleAttr, defStyleRes)
         indicatorIcon = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqIndicatorDrawableIcon) ?: indicatorIcon
         indicatorFraction = typedArray.getFloat(R.styleable.MCompoundQuestionnaire_mcqIndicatorSizeFraction, indicatorFraction)
@@ -134,6 +147,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         acceptDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqAcceptDrawable) ?: acceptDrawable
         cancelDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqCancelDrawable) ?: cancelDrawable
         notApplicableDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqNotApplicableDrawable) ?: notApplicableDrawable
+        notApplicableArrowDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqNotApplicableArrowDrawable) ?: notApplicableArrowDrawable
         typedArray.recycle()
 
         orientation = LinearLayout.VERTICAL
@@ -148,6 +162,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        textView.layoutParams = this.layoutParams
     }
 
     private fun initProgressBar() {
@@ -166,14 +181,14 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         recyclerView = RecyclerView(context)
         recyclerView?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         recyclerView?.setPadding(0, topPadding, 0, 0)
-        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding +bottomView, items, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable)
+        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + bottomView, items, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable)
         tileManager.attach(recyclerView, 0)
-        demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener{
-            override fun onItemClick(view: View, position: Int) {
-                recyclerView?.smoothScrollToPosition(position)
-            }
-
-        })
+//        demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener {
+//            override fun onItemClick(view: View, position: Int) {
+//                recyclerView?.smoothScrollToPosition(position)
+//            }
+//
+//        })
         tileManager.setOnItemSelectedListener(object : TileLayoutManager.OnItemSelectedListener {
             override fun onItemSelected(recyclerView: RecyclerView, item: View, position: Int) {
                 questionnaireIndicator?.currentPosition = position
@@ -221,5 +236,37 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             QuestionnaireCardView.CardStatus.CANCELED -> return cancelColor
             QuestionnaireCardView.CardStatus.NOT_APPLICABLE -> return notApplicableColor
         }
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        if (dismissNo == 0) {
+            notApplicableArrowDrawable.bounds.set(
+                    (measuredWidth / 2 - 2 * progressBarSize / 3).toInt(),
+                    (measuredHeight - bottomView - 3 * progressBarSize / 4).toInt(),
+                    (measuredWidth / 2 + 2 * progressBarSize / 3).toInt(),
+                    (measuredHeight - bottomView + progressBarSize / 4).toInt()
+            )
+            notApplicableArrowDrawable.draw(canvas)
+
+            textView.isDrawingCacheEnabled = true
+            textView.setTextColor(notApplicableColor)
+            textView.textSize = 16f
+            textView.gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
+            textView.measure(View.MeasureSpec.makeMeasureSpec(measuredWidth, View.MeasureSpec.EXACTLY)
+                    , View.MeasureSpec.makeMeasureSpec((bottomView).toInt(), View.MeasureSpec.AT_MOST))
+            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+            textView.text = context.getString(R.string.not_applicable)
+            textView.typeface = Typeface.DEFAULT_BOLD
+            if (textView.drawingCache != null) {
+                canvas?.drawBitmap(textView.drawingCache, 0f, measuredHeight - bottomView, textPaint)
+            }
+            textView.isDrawingCacheEnabled = false
+        }
+    }
+
+    override fun itemDismiss(itemPosition: Int) {
+        dismissNo++
+        invalidate()
     }
 }

@@ -78,7 +78,7 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
         v.cancelDrawable = cancelDrawable
         v.notApplicableDrawable = notApplicableDrawable
         v.bgDrawable = cardBackgroundDrawable
-        val height = (parent.measuredHeight - otherViewsHeight - (60 * mDensity)).toInt()
+        val height = (parent.measuredHeight - otherViewsHeight).toInt()
         val width = parent.measuredWidth - (100 * mDensity)
         v.layoutParams = RecyclerView.LayoutParams(width, height)
         return ViewHolder(v)
@@ -112,6 +112,7 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
     }
 
     fun onItemDismiss(position: Int) {
+        callbacks.itemDismiss(position)
         items.removeAt(position)
         notifyItemRemoved(position)
     }

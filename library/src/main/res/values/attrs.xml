@@ -22,6 +22,7 @@
         <attr name="mcqAcceptDrawable" format="reference|integer" />
         <attr name="mcqCancelDrawable" format="reference|integer" />
         <attr name="mcqNotApplicableDrawable" format="reference|integer" />
+        <attr name="mcqNotApplicableArrowDrawable" format="reference|integer" />
         <attr name="mcqCardBackgroundDrawable" format="reference|integer" />
     </declare-styleable>
 

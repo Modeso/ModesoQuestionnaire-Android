@@ -25,22 +25,4 @@
         app:mcqNotApplicableColor="@color/colorNotApplicable"
         app:mcqNotApplicableDrawable="@drawable/ic_not_applicable" />
 
-    <ch.modeso.mcompoundquestionnaire.QuestionnaireIndicator
-        android:id="@+id/questionnaireIndicator"
-        android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:visibility="gone"
-        app:mcqBackgroundColor="@color/colorPrimaryDark"
-        app:mcqIndicatorIcon="@drawable/ic_indicator"
-        app:mcqIndicatorSizeFraction="2.5"
-        app:mcqNumberOfPages="0"
-        app:mcqUpperColor="@color/colorPrimary" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/main_recycle1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="50dp"
-        android:visibility="gone" />
-
 </LinearLayout>
