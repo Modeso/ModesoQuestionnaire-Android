@@ -100,11 +100,11 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     val tileManager = TileLayoutManager()
     private var items: MutableList<BaseModel> = mutableListOf()
 
-    private val progressBarSize = 24
     private val density = context.resources.displayMetrics.density
+    private val progressBarSize = (24 * density).toInt()
 
     private val topPadding = (30 * density).toInt()
-    private val bottomView = (30 * density) + 50
+    private val bottomView = (30 * density) + 20 * density
 
     constructor(context: Context) : this(context, null)
 
@@ -152,7 +152,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
 
     private fun initProgressBar() {
         questionnaireIndicator = QuestionnaireIndicator(context)
-        questionnaireIndicator?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, (progressBarSize * density).toInt())
+        questionnaireIndicator?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, progressBarSize)
         questionnaireIndicator?.fraction = indicatorFraction
         questionnaireIndicator?.lowerColor = indicatorLowerColor
         questionnaireIndicator?.upperColor = indicatorUpperColor
@@ -166,7 +166,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         recyclerView = RecyclerView(context)
         recyclerView?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         recyclerView?.setPadding(0, topPadding, 0, 0)
-        demoAdapter = DemoAdapter(context, this, items, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable)
+        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding +bottomView, items, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable)
         tileManager.attach(recyclerView, 0)
         demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener{
             override fun onItemClick(view: View, position: Int) {

@@ -26,9 +26,6 @@ import android.view.animation.TranslateAnimation;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.modeso.mcompoundquestionnaire.Honeycomb;
-import ch.modeso.mcompoundquestionnaire.Lollipop;
-
 /**
  * Created by Hazem on 7/24/2017
  */
@@ -1042,13 +1039,13 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         if (viewHolder instanceof DemoAdapter.ViewHolder) {
             ((DemoAdapter.ViewHolder) viewHolder).setViewDismiss(DemoAdapter.ViewDismiss.DISMISSED);
         }
-        float deltaX = 400 + viewHolder.itemView.getX() - (150*dismissedNo);
+        float deltaX = viewHolder.itemView.getMeasuredWidth()/2 + viewHolder.itemView.getX() - (mLowerSpace *(dismissedNo +1));
         TranslateAnimation translateAnimation = new TranslateAnimation(0, -deltaX, 0, 0);
         translateAnimation.setDuration(1000);
         translateAnimation.setFillAfter(true);
         viewHolder.itemView.startAnimation(translateAnimation);
         mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
-        dismissedNo ++;
+        dismissedNo++;
     }
 
     private class RecoverAnimation implements AnimatorListenerCompat {

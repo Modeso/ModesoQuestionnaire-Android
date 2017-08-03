@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 
 
-class DemoAdapter(val context: Context, private val callbacks: CardInteractionCallbacks, var items: MutableList<BaseModel> = mutableListOf(),
+class DemoAdapter(val context: Context, private val callbacks: CardInteractionCallbacks, val otherViewsHeight: Float, var items: MutableList<BaseModel> = mutableListOf(),
                   cardTextColor: Int, acceptColor: Int, cancelColor: Int, notApplicableColor: Int, cardBackgroundDrawable: Drawable,
                   acceptDrawable: Drawable, cancelDrawable: Drawable, notApplicableDrawable: Drawable) : RecyclerView.Adapter<DemoAdapter.ViewHolder>(), View.OnClickListener {
 
@@ -78,7 +78,9 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
         v.cancelDrawable = cancelDrawable
         v.notApplicableDrawable = notApplicableDrawable
         v.bgDrawable = cardBackgroundDrawable
-        v.layoutParams = RecyclerView.LayoutParams(400 * mDensity, 600 * mDensity)
+        val height = (parent.measuredHeight - otherViewsHeight - (60 * mDensity)).toInt()
+        val width = parent.measuredWidth - (100 * mDensity)
+        v.layoutParams = RecyclerView.LayoutParams(width, height)
         return ViewHolder(v)
     }
 
