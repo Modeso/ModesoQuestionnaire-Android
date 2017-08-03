@@ -269,14 +269,26 @@ class QuestionnaireCardView : View {
             }
             textView.isDrawingCacheEnabled = false
         } else {
-            //buttons bg
-            cancelCirclePaint.color = cancelColor
-            cancelCircleRectF.set(cancelLeft, cancelTop, cancelRight, cancelBottom)
-            canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
 
-            acceptCirclePaint.color = acceptColor
-            acceptCircleRectF.set(acceptLeft, acceptTop, acceptRight, acceptBottom)
-            canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
+            if(cardStatus == CardStatus.ACCEPTED){
+                acceptCirclePaint.color = acceptColor
+                acceptCircleRectF.set(acceptLeft, acceptTop, acceptRight, acceptBottom)
+                canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
+                
+                cancelCirclePaint.color = cancelColor
+                cancelCircleRectF.set(cancelLeft, cancelTop, cancelRight, cancelBottom)
+                canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
+            }
+            else {
+                //buttons bg
+                cancelCirclePaint.color = cancelColor
+                cancelCircleRectF.set(cancelLeft, cancelTop, cancelRight, cancelBottom)
+                canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
+
+                acceptCirclePaint.color = acceptColor
+                acceptCircleRectF.set(acceptLeft, acceptTop, acceptRight, acceptBottom)
+                canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
+            }
 
 
             //buttons icon
