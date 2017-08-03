@@ -153,6 +153,9 @@ class QuestionnaireCardView : View {
 
     var cardInteractionCallbacks: CardInteractionCallbacks? =null
 
+    private var lastX: Float = 0f
+    private var lastY: Float = 0f
+
     constructor(context: Context) : this(context, null)
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -263,10 +266,17 @@ class QuestionnaireCardView : View {
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event != null) {
-            if (inCancelCircle(event.x, event.y)) {
-                animateCancelButton(animationDuration - (animationDuration / 3))
-            } else if (inAcceptCircle(event.x, event.y)) {
-                animateAcceptButton(animationDuration - (animationDuration / 3))
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                lastX = event.x
+                lastY = event.y
+            } else if (event.actionMasked == MotionEvent.ACTION_UP) {
+                if (inCancelCircle(event.x, event.y)) {
+                    animateCancelButton(animationDuration - (animationDuration / 3))
+                } else if (inAcceptCircle(event.x, event.y)) {
+                    animateAcceptButton(animationDuration - (animationDuration / 3))
+                }
+                lastX = 0f
+                lastY = 0f
             }
         }
         return super.onTouchEvent(event)
@@ -276,7 +286,8 @@ class QuestionnaireCardView : View {
         val x0: Float = padding + buttonsRadius
         val y0: Float = textHeight + 2 * padding + buttonsRadius
         val distance: Float = Math.sqrt(Math.pow((x - x0).toDouble(), 2.0) + Math.pow((y - y0).toDouble(), 2.0)).toFloat()
-        if (distance <= buttonsRadius) {
+        val distance2: Float = Math.sqrt(Math.pow((lastX - x0).toDouble(), 2.0) + Math.pow((lastY - y0).toDouble(), 2.0)).toFloat()
+        if (distance <= buttonsRadius && distance2 <= buttonsRadius) {
             return true
         }
         return false
@@ -286,7 +297,8 @@ class QuestionnaireCardView : View {
         val x0: Float = 2 * padding + 3 * buttonsRadius
         val y0: Float = textHeight + 2 * padding + buttonsRadius
         val distance: Float = Math.sqrt(Math.pow((x - x0).toDouble(), 2.0) + Math.pow((y - y0).toDouble(), 2.0)).toFloat()
-        if (distance <= buttonsRadius) {
+        val distance2: Float = Math.sqrt(Math.pow((lastX - x0).toDouble(), 2.0) + Math.pow((lastY - y0).toDouble(), 2.0)).toFloat()
+        if (distance <= buttonsRadius && distance2 <= buttonsRadius) {
             return true
         }
         return false
