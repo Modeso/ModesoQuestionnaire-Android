@@ -1058,6 +1058,8 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             @Override
             public void onAnimationStart(Animation animation) {
                 if (viewHolder.itemView instanceof QuestionnaireCardView) {
+                    ((QuestionnaireCardView) viewHolder.itemView).setCardStatus(QuestionnaireCardView.CardStatus.NONE);
+                    ((QuestionnaireCardView) viewHolder.itemView).resetSizes();
                     ((QuestionnaireCardView) viewHolder.itemView).setMovingHorizontal(true);
                 }
             }

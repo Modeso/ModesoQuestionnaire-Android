@@ -225,6 +225,17 @@ class QuestionnaireCardView : View {
         }
     }
 
+    fun resetSizes(){
+        cancelLeft = padding
+        cancelTop = textHeight + 2 * padding
+        cancelRight = padding + 2 * buttonsRadius
+        cancelBottom = textHeight + 2 * padding + 2 * buttonsRadius
+        acceptLeft = 2 * padding + 2 * buttonsRadius
+        acceptTop = textHeight + 2 * padding
+        acceptRight = 2 * padding + 4 * buttonsRadius
+        acceptBottom = textHeight + 2 * padding + 2 * buttonsRadius
+    }
+
     fun onCardMovement(fraction: Float) {
         if (lastFraction == fraction) {
             cardMoving = false
