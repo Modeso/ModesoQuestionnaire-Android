@@ -98,7 +98,7 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
             holder.itemView.bgDrawable = cardBackgroundDrawable
             holder.itemView.question = item.question
         }
-        holder.itemView.tag = position
+        holder.itemView.tag = item.id
     }
 
     override fun getItemCount(): Int {
@@ -107,12 +107,18 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
 
     override fun onClick(v: View) {
         if (mOnItemClickListener != null) {
-            mOnItemClickListener!!.onItemClick(v, v.tag as Int)
+            val item = items.find { it.id.contentEquals(v.tag as String) }
+            if (item != null) {
+                val index = items.indexOf(item)
+                if (index > -1) {
+                    mOnItemClickListener!!.onItemClick(v, index)
+                }
+            }
         }
     }
 
     fun onItemDismiss(position: Int) {
-        callbacks.itemDismiss(position)
+        callbacks.itemDismiss(items[position].id)
         items.removeAt(position)
         notifyItemRemoved(position)
     }

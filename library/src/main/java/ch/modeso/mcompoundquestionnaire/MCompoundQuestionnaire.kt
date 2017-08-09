@@ -181,7 +181,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         recyclerView = RecyclerView(context)
         recyclerView?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         recyclerView?.setPadding(0, topPadding, 0, 0)
-        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), items, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable)
+        val demoList = mutableListOf<BaseModel>()
+        demoList.addAll(items)
+        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable)
         tileManager.attach(recyclerView, 0)
 //        demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener {
 //            override fun onItemClick(view: View, position: Int) {
@@ -191,7 +193,16 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
 //        })
         tileManager.setOnItemSelectedListener(object : TileLayoutManager.OnItemSelectedListener {
             override fun onItemSelected(recyclerView: RecyclerView, item: View, position: Int) {
-                questionnaireIndicator?.currentPosition = position
+                if (demoAdapter != null) {
+                    val modelItem = demoAdapter!!.items[position]
+                    val realItem = items.find { it.id.contentEquals(modelItem.id) }
+                    if (realItem != null) {
+                        val realIndex = items.indexOf(realItem)
+                        if (realIndex > -1) {
+                            questionnaireIndicator?.currentPosition = realIndex
+                        }
+                    }
+                }
             }
 
         })
@@ -201,30 +212,71 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         addView(recyclerView)
     }
 
-    override fun itemAcceptClick(itemPosition: Int) {
-        questionnaireIndicator?.changeColorAtPosition(itemPosition, acceptColor)
+    override fun itemAcceptClick(itemId: String) {
         if (demoAdapter != null) {
-            demoAdapter!!.items[itemPosition].status = QuestionnaireCardView.CardStatus.ACCEPTED
+            val realItem = items.find { it.id.contentEquals(itemId) }
+            if (realItem != null) {
+                val realIndex = items.indexOf(realItem)
+                if (realIndex > -1) {
+                    questionnaireIndicator?.changeColorAtPosition(realIndex, acceptColor)
+                    items[realIndex].status = QuestionnaireCardView.CardStatus.ACCEPTED
+                }
+            }
+            val adapterItem = demoAdapter!!.items.find { it.id.contentEquals(itemId) }
+            if (adapterItem != null) {
+                val adapterIndex = demoAdapter!!.items.indexOf(adapterItem)
+                if (adapterIndex > -1) {
+                    demoAdapter!!.items[adapterIndex].status = QuestionnaireCardView.CardStatus.ACCEPTED
+                }
+            }
         }
     }
 
-    override fun itemCancelClick(itemPosition: Int) {
-        questionnaireIndicator?.changeColorAtPosition(itemPosition, cancelColor)
+    override fun itemCancelClick(itemId: String) {
         if (demoAdapter != null) {
-            demoAdapter!!.items[itemPosition].status = QuestionnaireCardView.CardStatus.CANCELED
+            val realItem = items.find { it.id.contentEquals(itemId) }
+            if (realItem != null) {
+                val realIndex = items.indexOf(realItem)
+                if (realIndex > -1) {
+                    questionnaireIndicator?.changeColorAtPosition(realIndex, cancelColor)
+                    items[realIndex].status = QuestionnaireCardView.CardStatus.CANCELED
+                }
+            }
+            val adapterItem = demoAdapter!!.items.find { it.id.contentEquals(itemId) }
+            if (adapterItem != null) {
+                val adapterIndex = demoAdapter!!.items.indexOf(adapterItem)
+                if (adapterIndex > -1) {
+                    demoAdapter!!.items[adapterIndex].status = QuestionnaireCardView.CardStatus.CANCELED
+                }
+            }
         }
     }
 
-    override fun itemNone(itemPosition: Int) {
-        questionnaireIndicator?.changeColorAtPosition(itemPosition, indicatorBackgroundColor)
+    override fun itemNone(itemId: String) {
         if (demoAdapter != null) {
-            demoAdapter!!.items[itemPosition].status = QuestionnaireCardView.CardStatus.NONE
+            val realItem = items.find { it.id.contentEquals(itemId) }
+            if (realItem != null) {
+                val realIndex = items.indexOf(realItem)
+                if (realIndex > -1) {
+                    questionnaireIndicator?.changeColorAtPosition(realIndex, indicatorBackgroundColor)
+                    items[realIndex].status = QuestionnaireCardView.CardStatus.NONE
+                }
+            }
+            val adapterItem = demoAdapter!!.items.find { it.id.contentEquals(itemId) }
+            if (adapterItem != null) {
+                val adapterIndex = demoAdapter!!.items.indexOf(adapterItem)
+                if (adapterIndex > -1) {
+                    demoAdapter!!.items[adapterIndex].status = QuestionnaireCardView.CardStatus.NONE
+                }
+            }
         }
     }
 
     fun updateList(itemsList: MutableList<BaseModel>) {
         items = itemsList
-        demoAdapter?.items = items
+        val demoList = mutableListOf<BaseModel>()
+        demoList.addAll(items)
+        demoAdapter?.items = demoList
         demoAdapter?.notifyDataSetChanged()
         questionnaireIndicator?.colorListAddAll(items.map { getCardColor(it.status) })
     }
@@ -265,8 +317,18 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         }
     }
 
-    override fun itemDismiss(itemPosition: Int) {
+    override fun itemDismiss(itemId: String) {
         dismissNo++
+        if (demoAdapter != null) {
+            val realItem = items.find { it.id.contentEquals(itemId) }
+            if (realItem != null) {
+                val realIndex = items.indexOf(realItem)
+                if (realIndex > -1) {
+                    questionnaireIndicator?.changeColorAtPosition(realIndex, notApplicableColor)
+                }
+                realItem.status = QuestionnaireCardView.CardStatus.NOT_APPLICABLE
+            }
+        }
         invalidate()
     }
 }
