@@ -21,8 +21,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -222,6 +220,10 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
 
     public int getDismissedNo() {
         return dismissedNo;
+    }
+
+    public void setDismissedNo(int dismissedNo) {
+        this.dismissedNo = dismissedNo;
     }
 
     private final RecyclerView.OnItemTouchListener mOnItemTouchListener
@@ -1049,33 +1051,11 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         }
         float widthRightPart = mLowerSpace + (float) Math.sqrt(Math.pow((viewHolder.itemView.getMeasuredWidth() - Math.sqrt(2 * Math.pow(mLowerSpace, 2))), 2) / 2);
         float widthLeftPart = mLowerSpace + (float) Math.sqrt(Math.pow((viewHolder.itemView.getMeasuredHeight() - Math.sqrt(2 * Math.pow(mLowerSpace, 2))), 2) / 2);
-        float def = (widthRightPart + widthLeftPart - viewHolder.itemView.getMeasuredWidth()) / 2;
-        float deltaX = viewHolder.itemView.getX() + viewHolder.itemView.getMeasuredWidth() - (widthRightPart - def) - (mLowerSpace * (dismissedNo + 1));
-        TranslateAnimation translateAnimation = new TranslateAnimation(0, -deltaX, 0, 0);
-        translateAnimation.setDuration(1000);
-        translateAnimation.setFillAfter(true);
-        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                if (viewHolder.itemView instanceof QuestionnaireCardView) {
-                    ((QuestionnaireCardView) viewHolder.itemView).setCardStatus(QuestionnaireCardView.CardStatus.NONE);
-                    ((QuestionnaireCardView) viewHolder.itemView).resetSizes();
-                    ((QuestionnaireCardView) viewHolder.itemView).setMovingHorizontal(true);
-                }
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                ((QuestionnaireCardView) viewHolder.itemView).setMovingHorizontal(false);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        viewHolder.itemView.startAnimation(translateAnimation);
-        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+        final float def = (widthRightPart + widthLeftPart - viewHolder.itemView.getMeasuredWidth()) / 2;
+        final float deltaX = viewHolder.itemView.getX() + viewHolder.itemView.getMeasuredWidth() - (widthRightPart - def) - (mLowerSpace * (dismissedNo + 1));
+        if (viewHolder instanceof DemoAdapter.ViewHolder) {
+            mAdapter.onItemDismiss((DemoAdapter.ViewHolder) viewHolder,deltaX);
+        }
         dismissedNo++;
     }
 

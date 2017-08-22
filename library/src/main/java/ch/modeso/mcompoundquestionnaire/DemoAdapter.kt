@@ -2,14 +2,20 @@ package ch.modeso.mcompoundquestionnaire
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.support.v4.animation.AnimatorCompatHelper
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout
+
+
 
 
 class DemoAdapter(val context: Context, private val callbacks: CardInteractionCallbacks, val otherViewsHeight: Float, var items: MutableList<BaseModel> = mutableListOf(),
                   cardTextColor: Int, acceptColor: Int, cancelColor: Int, notApplicableColor: Int, cardBackgroundDrawable: Drawable,
-                  acceptDrawable: Drawable, cancelDrawable: Drawable, notApplicableDrawable: Drawable) : RecyclerView.Adapter<DemoAdapter.ViewHolder>(), View.OnClickListener {
+                  acceptDrawable: Drawable, cancelDrawable: Drawable, notApplicableDrawable: Drawable, val bottomFrame: FrameLayout)
+    : RecyclerView.Adapter<DemoAdapter.ViewHolder>(), View.OnClickListener {
 
     var cardTextColor = cardTextColor
         set(value) {
@@ -117,10 +123,33 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
         }
     }
 
-    fun onItemDismiss(position: Int) {
+    fun onItemDismiss(viewHolder: ViewHolder, deltaX: Float) {
+        val position = viewHolder.adapterPosition
+        val targetY = viewHolder.itemView.y - viewHolder.itemView.translationY
         callbacks.itemDismiss(items[position].id)
         items.removeAt(position)
         notifyItemRemoved(position)
+        val view = viewHolder.itemView
+        if (view.parent is ViewGroup)
+            (view.parent as ViewGroup).removeView(view)
+        if(view is QuestionnaireCardView){
+            view.cardStatus = QuestionnaireCardView.CardStatus.NOT_APPLICABLE
+            view.originalY = targetY
+            view.originalX = view.x
+            view.initialY = view.y
+            view.rotationAngle = view.rotation
+        }
+        bottomFrame.addView(view)
+        val animatorCompat = AnimatorCompatHelper.emptyValueAnimator()
+        animatorCompat.setDuration(1000)
+        val interpolator = DecelerateInterpolator()
+        val left = view.left
+        animatorCompat.addUpdateListener { animation ->
+            val fraction = interpolator.getInterpolation(animation.animatedFraction)
+            val interpolatedValue = 0 - deltaX * fraction
+            view.x = (left + interpolatedValue)
+        }
+        animatorCompat.start()
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

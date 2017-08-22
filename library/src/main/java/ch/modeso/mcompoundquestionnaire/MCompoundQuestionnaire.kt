@@ -6,12 +6,18 @@ import android.graphics.Canvas
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.support.v4.animation.AnimatorCompatHelper
 import android.support.v4.content.ContextCompat
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 
@@ -106,7 +112,10 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     var questionnaireIndicator: QuestionnaireIndicator? = null
     var recyclerView: RecyclerView? = null
     var demoAdapter: DemoAdapter? = null
+    val bottomFrame = FrameLayout(context)
+    private lateinit var itemTouchHelper: CustomItemTouchHelper
     val tileManager = TileLayoutManager()
+    var isUnDismiss = false
     val textView = TextView(this.context)
     val textPaint = TextPaint()
     var dismissNo = 0
@@ -181,9 +190,10 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         recyclerView = RecyclerView(context)
         recyclerView?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         recyclerView?.setPadding(0, topPadding, 0, 0)
+        recyclerView?.itemAnimator = DefaultItemAnimator()
         val demoList = mutableListOf<BaseModel>()
         demoList.addAll(items)
-        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable)
+        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable, bottomFrame)
         tileManager.attach(recyclerView, 0)
 //        demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener {
 //            override fun onItemClick(view: View, position: Int) {
@@ -206,10 +216,18 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
 
         })
-        val itemTouchHelper = CustomItemTouchHelper(demoAdapter, bottomView)
+        itemTouchHelper = CustomItemTouchHelper(demoAdapter, bottomView)
         itemTouchHelper.attachToRecyclerView(recyclerView)
         recyclerView?.adapter = demoAdapter
-        addView(recyclerView)
+        val frameContainer: FrameLayout = FrameLayout(context)
+        frameContainer.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        val layoutParams = FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        layoutParams.gravity = Gravity.BOTTOM
+        bottomFrame.layoutParams = layoutParams
+        bottomFrame.setPadding(0, topPadding, 0, 0)
+        frameContainer.addView(recyclerView)
+        frameContainer.addView(bottomFrame)
+        addView(frameContainer)
     }
 
     override fun itemAcceptClick(itemId: String) {
@@ -330,5 +348,84 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
         }
         invalidate()
+    }
+
+    fun onItemUnDismiss(view: View) {
+        if (isUnDismiss) return
+        isUnDismiss = true
+        val id = view.tag as String
+        val realItem = items.find { it.id == id }
+        if (realItem != null && realItem.status == QuestionnaireCardView.CardStatus.NOT_APPLICABLE) {
+            val realIndex = items.indexOf(realItem)
+            if (realIndex > -1) {
+                questionnaireIndicator?.changeColorAtPosition(realIndex, indicatorBackgroundColor)
+            }
+            realItem.status = QuestionnaireCardView.CardStatus.NONE
+            (view.parent as ViewGroup).removeView(view)
+            dismissNo--
+            val position = items.filter { it.status != QuestionnaireCardView.CardStatus.NOT_APPLICABLE }.indexOf(realItem)
+            if (tileManager.mCurSelectedPosition == position) {
+                demoAdapter?.items?.add(position, realItem)
+                isUnDismiss = false
+                demoAdapter?.notifyItemInserted(position)
+            } else {
+                recyclerView?.smoothScrollToPosition(position)
+                val scrollListener = ScrolledListener(position, realItem, demoAdapter){
+                    isUnDismiss = false
+                }
+                recyclerView?.addOnScrollListener(scrollListener)
+            }
+            itemTouchHelper.dismissedNo--
+            redrawDismissedChild()
+
+        }
+    }
+
+    fun redrawDismissedChild(initialY: Float? = null, rotation: Float? = null) {
+        for (i in 0..bottomFrame.childCount - 1) {
+            val view = bottomFrame.getChildAt(i)
+            val animatorCompat = AnimatorCompatHelper.emptyValueAnimator()
+            animatorCompat.setDuration(300)
+            val interpolator = DecelerateInterpolator()
+            val widthRightPart = bottomView + Math.sqrt(Math.pow(view.measuredWidth - Math.sqrt(2 * Math.pow(bottomView.toDouble(), 2.0)), 2.0) / 2).toFloat()
+            val widthLeftPart = bottomView + Math.sqrt(Math.pow(view.measuredHeight - Math.sqrt(2 * Math.pow(bottomView.toDouble(), 2.0)), 2.0) / 2).toFloat()
+            val def = (widthRightPart + widthLeftPart - view.measuredWidth) / 2
+            val deltaX = view.measuredWidth - (widthRightPart - def) - bottomView * (i + 1)
+            Log.d("test", "current view x ${view.x} view lift ${view.left}")
+            val viewX = view.x
+            val viewY = view.y
+            val viewR = view.rotation
+            animatorCompat.addUpdateListener { animation ->
+                val fraction = interpolator.getInterpolation(animation.animatedFraction)
+                val interpolatedValue = viewX - (viewX + deltaX) * fraction
+                Log.d("test", "current view x ${view.x} interpolatedValue $interpolatedValue")
+                view.x = (interpolatedValue)
+                if (initialY != null) {
+                    view.y = (initialY - viewY) * fraction + viewY
+                }
+                if (rotation != null) {
+                    view.rotation = (rotation - viewR) * fraction + viewR
+                }
+            }
+            animatorCompat.start()
+        }
+    }
+
+    private class ScrolledListener(val position: Int, val realItem: BaseModel, val demoAdapter: DemoAdapter?, val done: () -> Unit) : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+
+        }
+
+        override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                Log.d("testScroll", "scrolled $position")
+                demoAdapter?.items?.add(position, realItem)
+                done()
+                demoAdapter?.notifyItemInserted(position)
+                recyclerView?.removeOnScrollListener(this)
+            }
+        }
     }
 }

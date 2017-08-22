@@ -17,8 +17,10 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.MotionEvent.INVALID_POINTER_ID
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.FrameLayout
 import android.widget.TextView
 
 
@@ -32,6 +34,10 @@ class QuestionnaireCardView : View {
         ACCEPTED,
         CANCELED,
         NOT_APPLICABLE
+    }
+
+    interface OnUnDismissListener {
+        fun onItemUnDismiss(view: View)
     }
 
     var question: String? = null
@@ -155,6 +161,13 @@ class QuestionnaireCardView : View {
 
     var cardInteractionCallbacks: CardInteractionCallbacks? = null
 
+    var originalX = 0f
+    var originalY = 0f
+    var originalWidth = 0f
+    var originalHeight = 0f
+    var rotationAngle = 0f
+    var initialY = 0f
+
     private var lastX: Float = 0f
     private var lastY: Float = 0f
     var movingHorizontal = false
@@ -163,6 +176,11 @@ class QuestionnaireCardView : View {
     private var notApplicableRadius = buttonsRadius + maxRadius
     private var notApplicableCenterX = 0f
     private var notApplicableCenterY = 0f
+    private var mActivePointerId = INVALID_POINTER_ID
+    private var mLastTouchX = 0f
+    private var mLastTouchY = 0f
+    private var mPosX = 0f
+    private var mPosY = 0f
 
     constructor(context: Context) : this(context, null)
 
@@ -186,6 +204,8 @@ class QuestionnaireCardView : View {
         Log.d("Test", "onMeasure")
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         textView.layoutParams = this.layoutParams
+        originalWidth = measuredWidth.toFloat()
+        originalHeight = measuredHeight.toFloat()
         buttonsRadius = (measuredWidth - 3 * padding) / 4
         textWidth = measuredWidth - 2 * padding
         textHeight = measuredHeight - 3 * padding - 2 * buttonsRadius
@@ -225,7 +245,7 @@ class QuestionnaireCardView : View {
         }
     }
 
-    fun resetSizes(){
+    fun resetSizes() {
         cancelLeft = padding
         cancelTop = textHeight + 2 * padding
         cancelRight = padding + 2 * buttonsRadius
@@ -281,16 +301,15 @@ class QuestionnaireCardView : View {
             textView.isDrawingCacheEnabled = false
         } else {
 
-            if(cardStatus == CardStatus.ACCEPTED){
+            if (cardStatus == CardStatus.ACCEPTED) {
                 acceptCirclePaint.color = acceptColor
                 acceptCircleRectF.set(acceptLeft, acceptTop, acceptRight, acceptBottom)
                 canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
-                
+
                 cancelCirclePaint.color = cancelColor
                 cancelCircleRectF.set(cancelLeft, cancelTop, cancelRight, cancelBottom)
                 canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
-            }
-            else {
+            } else {
                 //buttons bg
                 cancelCirclePaint.color = cancelColor
                 cancelCircleRectF.set(cancelLeft, cancelTop, cancelRight, cancelBottom)
@@ -338,21 +357,107 @@ class QuestionnaireCardView : View {
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event != null) {
-            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                lastX = event.x
-                lastY = event.y
-            } else if (event.actionMasked == MotionEvent.ACTION_UP) {
-                if (inCancelCircle(event.x, event.y)) {
-                    animateCancelButton(animationDuration - (animationDuration / 3))
-                } else if (inAcceptCircle(event.x, event.y)) {
-                    animateAcceptButton(animationDuration - (animationDuration / 3))
+        if (cardStatus == CardStatus.NOT_APPLICABLE) {
+            when (event?.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    val pointerIndex = event.actionIndex
+                    val x = event.rawX
+                    val y = event.rawY
+                    // Remember where we started (for dragging)
+                    mLastTouchX = x
+                    mLastTouchY = y
+                    mPosX = getX()
+                    mPosY = getY()
+                    // Save the ID of this pointer (for dragging)
+                    mActivePointerId = event.getPointerId(pointerIndex)
                 }
-                lastX = 0f
-                lastY = 0f
+
+                MotionEvent.ACTION_MOVE -> {
+                    // Find the index of the active pointer and fetch its position
+                    val pointerIndex = event.findPointerIndex(mActivePointerId)
+                    val x = event.rawX
+                    val y = event.rawY
+                    // Calculate the distance moved
+                    val dx = x - mLastTouchX
+                    val dy = y - mLastTouchY
+                    mPosX += dx
+                    mPosY += dy
+                    this.x = mPosX
+                    this.y = mPosY
+                    onCardMovement((mPosY - originalY) / initialY)
+                    cardMoving = true
+                    this.rotation = rotationAngle * (mPosY - originalY) / initialY
+                    alpha = 0.5F
+                    invalidate()
+
+                    // Remember this touch position for the next move event
+                    mLastTouchX = x
+                    mLastTouchY = y
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    cardMoving = false
+                    alpha = 1F
+                    if (isDroppedOnList(mPosX, mPosY)) {
+                        if (parent is FrameLayout) {
+                            if (parent.parent is FrameLayout) {
+                                if (parent.parent.parent is MCompoundQuestionnaire) {
+                                    (parent.parent.parent as MCompoundQuestionnaire).onItemUnDismiss(this)
+                                }
+                            }
+                        }
+                    } else {
+                        if (parent is FrameLayout) {
+                            if (parent.parent is FrameLayout) {
+                                if (parent.parent.parent is MCompoundQuestionnaire) {
+                                    (parent.parent.parent as MCompoundQuestionnaire).redrawDismissedChild(initialY, rotationAngle)
+                                }
+                            }
+                        }
+                    }
+                    mActivePointerId = INVALID_POINTER_ID
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    mActivePointerId = INVALID_POINTER_ID
+                }
+
+                MotionEvent.ACTION_POINTER_UP -> {
+                    val pointerIndex = event.actionIndex
+                    val pointerId = event.getPointerId(pointerIndex)
+
+                    if (pointerId == mActivePointerId) {
+                        // This was our active pointer going up. Choose a new
+                        // active pointer and adjust accordingly.
+                        val newPointerIndex = if (pointerIndex == 0) 1 else 0
+                        mLastTouchX = event.rawX
+                        mLastTouchY = event.rawY
+                        mActivePointerId = event.getPointerId(newPointerIndex)
+                    }
+                }
+            }
+        } else {
+            if (event != null) {
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                    lastX = event.x
+                    lastY = event.y
+                } else if (event.actionMasked == MotionEvent.ACTION_UP) {
+                    if (inCancelCircle(event.x, event.y)) {
+                        animateCancelButton(animationDuration - (animationDuration / 3))
+                    } else if (inAcceptCircle(event.x, event.y)) {
+                        animateAcceptButton(animationDuration - (animationDuration / 3))
+                    }
+                    lastX = 0f
+                    lastY = 0f
+                }
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    private fun isDroppedOnList(x: Float, y: Float): Boolean {
+        Log.d("droppedLocation", "X: $x, Y: $y, originalX: $originalX, originalY: $originalY, originalX + originalWidth: ${originalX + originalWidth}, originalY + originalHeight: ${originalY + measuredHeight} ")
+        return (x >= (originalX - originalWidth / 3) && x <= (originalX + 2 * originalWidth / 3) && y >= (originalY - measuredHeight / 3) && y <= (originalY + 2 * measuredHeight / 3))
     }
 
     private fun inCancelCircle(x: Float, y: Float): Boolean {
