@@ -9,9 +9,6 @@ import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 
-
-
-
 class DemoAdapter(val context: Context, private val callbacks: CardInteractionCallbacks, val otherViewsHeight: Float, var items: MutableList<BaseModel> = mutableListOf(),
                   cardTextColor: Int, acceptColor: Int, cancelColor: Int, notApplicableColor: Int, cardBackgroundDrawable: Drawable,
                   acceptDrawable: Drawable, cancelDrawable: Drawable, notApplicableDrawable: Drawable, val bottomFrame: FrameLayout)
@@ -130,14 +127,18 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
         items.removeAt(position)
         notifyItemRemoved(position)
         val view = viewHolder.itemView
-        if (view.parent is ViewGroup)
+        if (view.parent is ViewGroup) {
             (view.parent as ViewGroup).removeView(view)
-        if(view is QuestionnaireCardView){
+            viewHolder.setIsRecyclable(true)
+        }
+        if (view is QuestionnaireCardView) {
             view.cardStatus = QuestionnaireCardView.CardStatus.NOT_APPLICABLE
             view.originalY = targetY
             view.originalX = view.x
             view.initialY = view.y
             view.rotationAngle = view.rotation
+            view.movingHorizontal = true
+            view.cardMoving = false
         }
         bottomFrame.addView(view)
         val animatorCompat = AnimatorCompatHelper.emptyValueAnimator()

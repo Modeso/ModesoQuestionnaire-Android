@@ -36,10 +36,6 @@ class QuestionnaireCardView : View {
         NOT_APPLICABLE
     }
 
-    interface OnUnDismissListener {
-        fun onItemUnDismiss(view: View)
-    }
-
     var question: String? = null
         set(value) {
             field = value
@@ -172,7 +168,11 @@ class QuestionnaireCardView : View {
     private var lastY: Float = 0f
     var movingHorizontal = false
     private var lastFraction: Float = 0f
-    private var cardMoving = false
+    var cardMoving = false
+        set(value) {
+            field = value
+            invalidate()
+        }
     private var notApplicableRadius = buttonsRadius + maxRadius
     private var notApplicableCenterX = 0f
     private var notApplicableCenterY = 0f
@@ -257,11 +257,6 @@ class QuestionnaireCardView : View {
     }
 
     fun onCardMovement(fraction: Float) {
-        if (lastFraction == fraction) {
-            cardMoving = false
-            invalidate()
-            return
-        }
         cardMoving = fraction > 0f && !movingHorizontal
         notApplicableRadius = buttonsRadius + maxRadius * fraction
         lastFraction = fraction

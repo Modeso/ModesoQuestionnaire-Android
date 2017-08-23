@@ -7,6 +7,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.animation.AnimatorCompatHelper
+import android.support.v4.animation.AnimatorListenerCompat
+import android.support.v4.animation.ValueAnimatorCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
@@ -370,7 +372,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 demoAdapter?.notifyItemInserted(position)
             } else {
                 recyclerView?.smoothScrollToPosition(position)
-                val scrollListener = ScrolledListener(position, realItem, demoAdapter){
+                val scrollListener = ScrolledListener(position, realItem, demoAdapter) {
                     isUnDismiss = false
                 }
                 recyclerView?.addOnScrollListener(scrollListener)
@@ -405,6 +407,10 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
                 if (rotation != null) {
                     view.rotation = (rotation - viewR) * fraction + viewR
+                }
+                if (view is QuestionnaireCardView) {
+                    view.movingHorizontal = true
+                    view.cardMoving = false
                 }
             }
             animatorCompat.start()

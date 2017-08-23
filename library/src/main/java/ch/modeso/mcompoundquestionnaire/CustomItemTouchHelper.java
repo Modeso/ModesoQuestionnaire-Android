@@ -21,6 +21,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -726,6 +727,14 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         if (child == null) {
             return null;
         }
+        if (child instanceof QuestionnaireCardView) {
+            if (((QuestionnaireCardView) child).getCardStatus() == QuestionnaireCardView.CardStatus.NOT_APPLICABLE) {
+                return null;
+            }
+        }
+        if (child.getParent() instanceof FrameLayout) {
+            return null;
+        }
         return mRecyclerView.getChildViewHolder(child);
     }
 
@@ -978,8 +987,14 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         final float alpha = ANGLE * dY / max;
         viewHolder.itemView.setRotation(alpha);
         viewHolder.itemView.setTranslationY(dY);
-        if (viewHolder.itemView instanceof QuestionnaireCardView) {
-            ((QuestionnaireCardView) viewHolder.itemView).onCardMovement(dY / max);
+        if (viewHolder.itemView instanceof QuestionnaireCardView && !((QuestionnaireCardView) viewHolder.itemView).getMovingHorizontal()) {
+            if (mActivePointerId != ACTIVE_POINTER_ID_NONE) {
+                ((QuestionnaireCardView) viewHolder.itemView).onCardMovement(dY / max);
+                ((QuestionnaireCardView) viewHolder.itemView).setCardMoving(true);
+
+            } else {
+                ((QuestionnaireCardView) viewHolder.itemView).setCardMoving(false);
+            }
         }
     }
 
@@ -1053,8 +1068,9 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         float widthLeftPart = mLowerSpace + (float) Math.sqrt(Math.pow((viewHolder.itemView.getMeasuredHeight() - Math.sqrt(2 * Math.pow(mLowerSpace, 2))), 2) / 2);
         final float def = (widthRightPart + widthLeftPart - viewHolder.itemView.getMeasuredWidth()) / 2;
         final float deltaX = viewHolder.itemView.getX() + viewHolder.itemView.getMeasuredWidth() - (widthRightPart - def) - (mLowerSpace * (dismissedNo + 1));
+        viewHolder.setIsRecyclable(true);
         if (viewHolder instanceof DemoAdapter.ViewHolder) {
-            mAdapter.onItemDismiss((DemoAdapter.ViewHolder) viewHolder,deltaX);
+            mAdapter.onItemDismiss((DemoAdapter.ViewHolder) viewHolder, deltaX);
         }
         dismissedNo++;
     }
