@@ -1038,6 +1038,7 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
 
     private void onSwiped(final RecyclerView.ViewHolder viewHolder) {
         // Notify the adapter of the dismissal
+        mRecoverAnimations.clear();
         if (viewHolder instanceof DemoAdapter.ViewHolder) {
             ((DemoAdapter.ViewHolder) viewHolder).setViewDismiss(DemoAdapter.ViewDismiss.DISMISSED);
         }
