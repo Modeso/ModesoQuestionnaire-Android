@@ -236,7 +236,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             }
             final int action = MotionEventCompat.getActionMasked(event);
             if (action == MotionEvent.ACTION_DOWN) {
-                Log.d(TAG, "onInterceptTouchEvent: ACTION_DOWN");
                 mActivePointerId = event.getPointerId(0);
                 mInitialTouchX = event.getX();
                 mInitialTouchY = event.getY();
@@ -255,7 +254,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
                     }
                 }
             } else if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-                Log.d(TAG, "onInterceptTouchEvent: ACTION_CANCEL or ACTION_UP");
                 mActivePointerId = ACTIVE_POINTER_ID_NONE;
                 select(null, ACTION_STATE_IDLE);
             } else if (mActivePointerId != ACTIVE_POINTER_ID_NONE) {
@@ -299,7 +297,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
 
             switch (action) {
                 case MotionEvent.ACTION_MOVE: {
-                    Log.d(TAG, "onTouchEvent: ACTION_MOVE");
                     // Find the index of the active pointer and fetch its position
                     if (viewHolder instanceof DemoAdapter.ViewHolder) {
                         if (((DemoAdapter.ViewHolder) viewHolder).getViewDismiss() == DemoAdapter.ViewDismiss.DISMISSED) {
@@ -313,18 +310,15 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
                     break;
                 }
                 case MotionEvent.ACTION_CANCEL:
-                    Log.d(TAG, "onTouchEvent: ACTION_CANCEL");
                     if (mVelocityTracker != null) {
                         mVelocityTracker.clear();
                     }
                     // fall through
                 case MotionEvent.ACTION_UP:
-                    Log.d(TAG, "onTouchEvent: ACTION_UP");
                     select(null, ACTION_STATE_IDLE);
                     mActivePointerId = ACTIVE_POINTER_ID_NONE;
                     break;
                 case MotionEvent.ACTION_POINTER_UP: {
-                    Log.d(TAG, "onTouchEvent: ACTION_POINTER_UP");
                     final int pointerIndex = MotionEventCompat.getActionIndex(event);
                     final int pointerId = event.getPointerId(pointerIndex);
                     if (pointerId == mActivePointerId) {
@@ -344,7 +338,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             if (!disallowIntercept) {
                 return;
             }
-            Log.d(TAG, "onRequestDisallowInterceptTouchEvent: ");
             select(null, ACTION_STATE_IDLE);
         }
     };
@@ -498,7 +491,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
      * @param actionState The type of action
      */
     private void select(RecyclerView.ViewHolder selected, int actionState) {
-        Log.d(TAG, "select: escaped:" + selected + " actionState:" + actionState);
         if (selected == mSelected && actionState == mActionState) {
             return;
         }
@@ -507,17 +499,12 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         endRecoverAnimation(selected, true);
         mActionState = actionState;
 
-        int actionStateMask = (1 << (DIRECTION_FLAG_COUNT + DIRECTION_FLAG_COUNT * actionState))
-                - 1;
+        int actionStateMask = (1 << (DIRECTION_FLAG_COUNT + DIRECTION_FLAG_COUNT * actionState)) - 1;
         boolean preventLayout = false;
 
-        Log.d(TAG, "select: " + selected);
-
         if (mSelected != null) {
-            Log.d(TAG, "select: mselected != null");
             final RecyclerView.ViewHolder prevSelected = mSelected;
             if (prevSelected.itemView.getParent() != null) {
-                Log.d(TAG, "select: prevSelected.itemView.getParent() != null");
                 final int swipeDir = swipeIfNecessary();
                 releaseVelocityTracker();
                 // find where we should animate to
@@ -548,9 +535,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
                 getSelectedDxDy(mTmpPosition);
                 final float currentTranslateX = mTmpPosition[0];
                 final float currentTranslateY = mTmpPosition[1];
-                Log.d(TAG, "select: swipeDir:" + swipeDir + " animationType:" + animationType + " targetTranslateX:"
-                        + targetTranslateX + " targetTranslateY:" + targetTranslateY + " currentTranslateX:"
-                        + currentTranslateX + " currentTranslateY:" + currentTranslateY);
                 final RecoverAnimation rv = new RecoverAnimation(prevSelected, animationType,
                         prevActionState, currentTranslateX, currentTranslateY,
                         targetTranslateX, targetTranslateY) {
@@ -588,7 +572,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             mSelected = null;
         }
         if (selected != null) {
-            Log.d(TAG, "select: selected != null");
             mSelectedFlags =
                     (getAbsoluteMovementFlags(mRecyclerView) & actionStateMask)
                             >> (mActionState * DIRECTION_FLAG_COUNT);
@@ -599,11 +582,9 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         }
         final ViewParent rvParent = mRecyclerView.getParent();
         if (rvParent != null) {
-            Log.d(TAG, "select: rvParent != null");
             rvParent.requestDisallowInterceptTouchEvent(mSelected != null);
         }
         if (!preventLayout) {
-            Log.d(TAG, "select: !preventLayout");
             mRecyclerView.getLayoutManager().requestSimpleAnimationsInNextLayout();
         }
         onSelectedChanged(mSelected, mActionState);
@@ -624,7 +605,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
                     // animations. Instead, we wait and batch.
                     if ((animator == null || !animator.isRunning(null))
                             && !hasRunningRecoverAnim()) {
-                        Log.d(TAG, "run: mViewHolder" + anim.mViewHolder);
                         onSwiped(anim.mViewHolder);
                     } else {
                         mRecyclerView.post(this);
@@ -655,7 +635,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             return;
         }
         if (mSelected != null && holder == mSelected) {
-            Log.d(TAG, "onChildViewDetachedFromWindow: touchevent");
             select(null, ACTION_STATE_IDLE);
         } else {
             endRecoverAnimation(holder, false); // this may push it into pending cleanup list.
@@ -860,7 +839,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
                 ViewCompat.getLayoutDirection(mRecyclerView));
         final int flags = (absoluteMovementFlags
                 & ACTION_MODE_SWIPE_MASK) >> (ACTION_STATE_SWIPE * DIRECTION_FLAG_COUNT);
-        Log.d(TAG, "swipeIfNecessary: originalMovementFlags:" + originalMovementFlags + " absoluteMovementFlags:" + absoluteMovementFlags + " flags:" + flags);
         if (flags == 0) {
             return 0;
         }
@@ -1060,7 +1038,6 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
 
     private void onSwiped(final RecyclerView.ViewHolder viewHolder) {
         // Notify the adapter of the dismissal
-        Log.d(TAG, "onSwiped: viewHolder " + viewHolder.itemView);
         if (viewHolder instanceof DemoAdapter.ViewHolder) {
             ((DemoAdapter.ViewHolder) viewHolder).setViewDismiss(DemoAdapter.ViewDismiss.DISMISSED);
         }

@@ -7,14 +7,11 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.animation.AnimatorCompatHelper
-import android.support.v4.animation.AnimatorListenerCompat
-import android.support.v4.animation.ValueAnimatorCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -393,14 +390,12 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             val widthLeftPart = bottomView + Math.sqrt(Math.pow(view.measuredHeight - Math.sqrt(2 * Math.pow(bottomView.toDouble(), 2.0)), 2.0) / 2).toFloat()
             val def = (widthRightPart + widthLeftPart - view.measuredWidth) / 2
             val deltaX = view.measuredWidth - (widthRightPart - def) - bottomView * (i + 1)
-            Log.d("test", "current view x ${view.x} view lift ${view.left}")
             val viewX = view.x
             val viewY = view.y
             val viewR = view.rotation
             animatorCompat.addUpdateListener { animation ->
                 val fraction = interpolator.getInterpolation(animation.animatedFraction)
                 val interpolatedValue = viewX - (viewX + deltaX) * fraction
-                Log.d("test", "current view x ${view.x} interpolatedValue $interpolatedValue")
                 view.x = (interpolatedValue)
                 if (initialY != null) {
                     view.y = (initialY - viewY) * fraction + viewY
@@ -426,7 +421,6 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
             if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                Log.d("testScroll", "scrolled $position")
                 demoAdapter?.items?.add(position, realItem)
                 done()
                 demoAdapter?.notifyItemInserted(position)

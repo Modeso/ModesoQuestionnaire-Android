@@ -14,7 +14,6 @@ import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.MotionEvent.INVALID_POINTER_ID
@@ -201,7 +200,6 @@ class QuestionnaireCardView : View {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        Log.d("Test", "onMeasure")
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         textView.layoutParams = this.layoutParams
         originalWidth = measuredWidth.toFloat()
@@ -264,7 +262,6 @@ class QuestionnaireCardView : View {
     }
 
     override fun onDraw(canvas: Canvas?) {
-        Log.d("Test", "onDraw")
         // background
         background = bgDrawable
 
@@ -451,7 +448,6 @@ class QuestionnaireCardView : View {
     }
 
     private fun isDroppedOnList(x: Float, y: Float): Boolean {
-        Log.d("droppedLocation", "X: $x, Y: $y, originalX: $originalX, originalY: $originalY, originalX + originalWidth: ${originalX + originalWidth}, originalY + originalHeight: ${originalY + measuredHeight} ")
         return (x >= (originalX - originalWidth / 3) && x <= (originalX + 2 * originalWidth / 3) && y >= (originalY - measuredHeight / 3) && y <= (originalY + 2 * measuredHeight / 3))
     }
 
