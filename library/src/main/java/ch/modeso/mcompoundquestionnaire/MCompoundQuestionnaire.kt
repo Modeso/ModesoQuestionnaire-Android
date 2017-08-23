@@ -217,7 +217,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
 
         })
-        itemTouchHelper = CustomItemTouchHelper(demoAdapter, bottomView)
+        itemTouchHelper = CustomItemTouchHelper(demoAdapter, bottomView, tileManager)
         itemTouchHelper.attachToRecyclerView(recyclerView)
         recyclerView?.adapter = demoAdapter
         val frameContainer: FrameLayout = FrameLayout(context)

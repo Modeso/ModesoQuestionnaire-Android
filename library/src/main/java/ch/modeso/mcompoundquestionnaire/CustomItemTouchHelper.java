@@ -213,6 +213,7 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
     private RecyclerView mRecyclerView;
 
     private float mLowerSpace;
+    private TileLayoutManager mTileLayoutManager;
 
     /**
      * Used for detecting fling swipe
@@ -269,6 +270,11 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             }
             if (mVelocityTracker != null) {
                 mVelocityTracker.addMovement(event);
+            }
+            if(mSelected != null) {
+                if (mSelected.getAdapterPosition() != mTileLayoutManager.getCurSelectedPosition()) {
+                    return false;
+                }
             }
             return mSelected != null;
         }
@@ -349,9 +355,10 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
      * {@link #attachToRecyclerView(RecyclerView)}. Upon attaching, it will add an item decoration,
      * an onItemTouchListener and a Child attach / detach listener to the RecyclerView.
      */
-    CustomItemTouchHelper(DemoAdapter adapter, float lowerSpace) {
+    CustomItemTouchHelper(DemoAdapter adapter, float lowerSpace, TileLayoutManager tileLayoutManager) {
         mLowerSpace = lowerSpace;
         mAdapter = adapter;
+        mTileLayoutManager = tileLayoutManager;
     }
 
     private static boolean hitTest(View child, float x, float y, float left, float top) {
