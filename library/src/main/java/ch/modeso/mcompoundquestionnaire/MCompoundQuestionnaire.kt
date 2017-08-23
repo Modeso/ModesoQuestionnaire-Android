@@ -108,6 +108,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             invalidate()
         }
 
+    var cardInteractionCallBacks: CardInteractionCallbacks? = null
+
     var questionnaireIndicator: QuestionnaireIndicator? = null
     var recyclerView: RecyclerView? = null
     var demoAdapter: DemoAdapter? = null
@@ -247,6 +249,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
         }
+        cardInteractionCallBacks?.itemAcceptClick(itemId)
     }
 
     override fun itemCancelClick(itemId: String) {
@@ -267,6 +270,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
         }
+        cardInteractionCallBacks?.itemCancelClick(itemId)
     }
 
     override fun itemNone(itemId: String) {
@@ -287,6 +291,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
         }
+        cardInteractionCallBacks?.itemNone(itemId)
     }
 
     fun updateList(itemsList: MutableList<BaseModel>) {
@@ -347,6 +352,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
         }
         invalidate()
+        cardInteractionCallBacks?.itemDismiss(itemId)
     }
 
     fun onItemUnDismiss(view: View) {
@@ -366,11 +372,13 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             if (tileManager.mCurSelectedPosition == position) {
                 demoAdapter?.items?.add(position, realItem)
                 isUnDismiss = false
+                cardInteractionCallBacks?.itemNone(id)
                 demoAdapter?.notifyItemInserted(position)
             } else {
                 recyclerView?.smoothScrollToPosition(position)
                 val scrollListener = ScrolledListener(position, realItem, demoAdapter) {
                     isUnDismiss = false
+                    cardInteractionCallBacks?.itemNone(id)
                 }
                 recyclerView?.addOnScrollListener(scrollListener)
             }
