@@ -4,7 +4,9 @@
   <img src="https://media.licdn.com/mpr/mpr/shrink_200_200/AAEAAQAAAAAAAAZsAAAAJDM2NTU0MDA1LTA3YmEtNGUyMC05YmZjLTIxMDNlZWZlM2ZkMQ.png">
 </p>
 
-ModesoQuestionnaire-Android is an android questionnaire written mostly in Kotlin. It enable creating questionnaire with a lot of features and ease of use
+ModesoQuestionnaire-Android is an android questionnaire written mostly in Kotlin. 
+It's insperated by [Yaroslav Zubko](https://dribbble.com/Yar_Z)'s [design](https://dribbble.com/shots/2926913--4-Compound-Questionnaire).
+It enable creating questionnaire with a lot of features and ease of use
 
 - [Requirements](#requirements)
 - [Installation](#installation)
