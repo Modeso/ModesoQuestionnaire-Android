@@ -47,6 +47,12 @@ class QuestionnaireCardView : View {
             invalidate()
         }
 
+    var textSecondColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     var bgDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.card_bg)
         set(value) {
             field = value
@@ -334,7 +340,11 @@ class QuestionnaireCardView : View {
         //text
         if (question != null) {
             textView.isDrawingCacheEnabled = true
-            textView.setTextColor(textColor)
+            if(cardStatus == CardStatus.NONE) {
+                textView.setTextColor(textColor)
+            } else {
+                textView.setTextColor(textSecondColor)
+            }
             textView.textSize = textSize
             textView.gravity = Gravity.START
             textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY),

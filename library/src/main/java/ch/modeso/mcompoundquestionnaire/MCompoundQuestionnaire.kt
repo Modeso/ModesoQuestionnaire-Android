@@ -61,6 +61,13 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             field = value
             demoAdapter?.cardTextColor = value
         }
+
+    var cardTextSecondColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
+        set(value) {
+            field = value
+            demoAdapter?.cardTextSecondColor = value
+        }
+
     var acceptColor: Int = ContextCompat.getColor(context, R.color.colorAccept)
         set(value) {
             field = value
@@ -150,6 +157,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         indicatorLowerColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorLowerColor, indicatorLowerColor)
         indicatorBackgroundColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorBackgroundColor, indicatorBackgroundColor)
         cardTextColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqCardTextColor, cardTextColor)
+        cardTextSecondColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqCardTextSecondColor, cardTextSecondColor)
         acceptColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqAcceptColor, acceptColor)
         cancelColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqCancelColor, cancelColor)
         notApplicableColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqNotApplicableColor, notApplicableColor)
@@ -194,7 +202,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         recyclerView?.itemAnimator = DefaultItemAnimator()
         val demoList = mutableListOf<BaseModel>()
         demoList.addAll(items)
-        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable, bottomFrame)
+        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, cardTextColor, cardTextSecondColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable, bottomFrame)
         tileManager.attach(recyclerView, 0)
 //        demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener {
 //            override fun onItemClick(view: View, position: Int) {

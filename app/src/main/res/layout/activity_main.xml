@@ -18,6 +18,7 @@
         app:mcqCancelDrawable="@drawable/ic_close"
         app:mcqCardBackgroundDrawable="@drawable/card_bg"
         app:mcqCardTextColor="@color/colorAccent"
+        app:mcqCardTextSecondColor="@color/colorPrimaryDark"
         app:mcqIndicatorBackgroundColor="@color/colorPrimaryDark"
         app:mcqIndicatorDrawableIcon="@drawable/ic_indicator"
         app:mcqIndicatorSizeFraction="2.5"
