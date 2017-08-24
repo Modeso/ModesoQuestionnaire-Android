@@ -6,6 +6,8 @@
 
 ModesoQuestionnaire-Android is an android questionnaire written mostly in Kotlin. It enable creating questionnaire with a lot of features and ease of use
 
+<img src="https://raw.githubusercontent.com/Modeso/ModesoQuestionnaire-Android/master/1.gif">
+
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
