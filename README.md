@@ -20,6 +20,22 @@ ModesoQuestionnaire-Android is an android questionnaire written mostly in Kotlin
 
 ## Installation
 
+- **Step 1:** Add the JitPack repository to your project level build.gradle
+  ```
+  	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+  ```
+- **Step 2:** Add the dependency to your module build.gradle
+  ```
+  	dependencies {
+	        compile 'com.github.Modeso:ModesoQuestionnaire-Android:1.0.0'
+	}
+  ```
+
 ## Usage
 
 - in **XML**
