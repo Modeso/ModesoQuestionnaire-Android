@@ -62,6 +62,8 @@ ModesoQuestionnaire-Android is an android questionnaire written mostly in Kotlin
   mcompound_questionnaire.updateList(title.toMutableList())
   mcompound_questionnaire.cardInteractionCallBacks = this
 ```
+	- use **updateList(itemsList: MutableList<BaseModel>)** to create/update question list
+	- use **cardInteractionCallBacks** to set callback for user action on each question
 
 ## Options
 - XML **Attributes**
