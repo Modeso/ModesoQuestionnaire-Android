@@ -17,6 +17,7 @@
         <attr name="mcqIndicatorSizeFraction" format="reference|float" />
         <attr name="mcqCardTextColor" format="reference|color" />
         <attr name="mcqCardTextSecondColor" format="reference|color" />
+        <attr name="mcqButtonAnimationDuration" format="reference|float" />
         <attr name="mcqAcceptColor" format="reference|color" />
         <attr name="mcqCancelColor" format="reference|color" />
         <attr name="mcqNotApplicableColor" format="reference|color" />

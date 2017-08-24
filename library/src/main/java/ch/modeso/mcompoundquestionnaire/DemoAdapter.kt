@@ -10,7 +10,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 
 class DemoAdapter(val context: Context, private val callbacks: CardInteractionCallbacks, val otherViewsHeight: Float, var items: MutableList<BaseModel> = mutableListOf(),
-                  cardTextColor: Int, cardTextSecondColor: Int, acceptColor: Int, cancelColor: Int, notApplicableColor: Int, cardBackgroundDrawable: Drawable,
+                  buttonAnimationDuration: Float, cardTextColor: Int, cardTextSecondColor: Int, acceptColor: Int, cancelColor: Int, notApplicableColor: Int, cardBackgroundDrawable: Drawable,
                   acceptDrawable: Drawable, cancelDrawable: Drawable, notApplicableDrawable: Drawable, val bottomFrame: FrameLayout)
     : RecyclerView.Adapter<DemoAdapter.ViewHolder>(), View.OnClickListener {
 
@@ -21,6 +21,12 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
         }
 
     var cardTextSecondColor = cardTextSecondColor
+        set(value) {
+            field = value
+            this.notifyDataSetChanged()
+        }
+
+    var buttonAnimationDuration = buttonAnimationDuration
         set(value) {
             field = value
             this.notifyDataSetChanged()
@@ -81,6 +87,7 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
         v.setOnClickListener(this)
         v.textColor = cardTextColor
         v.textSecondColor = cardTextSecondColor
+        v.animationDuration = buttonAnimationDuration
         v.acceptColor = acceptColor
         v.cancelColor = cancelColor
         v.notApplicableColor = notApplicableColor
@@ -100,6 +107,7 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
             holder.itemView.cardStatus = item.status
             holder.itemView.textColor = cardTextColor
             holder.itemView.textSecondColor = cardTextSecondColor
+            holder.itemView.animationDuration = buttonAnimationDuration
             holder.itemView.acceptColor = acceptColor
             holder.itemView.cancelColor = cancelColor
             holder.itemView.notApplicableColor = notApplicableColor

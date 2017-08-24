@@ -56,6 +56,13 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             questionnaireIndicator?.fraction = value
         }
 
+    var buttonAnimationDuration: Float = 1000f
+        set(value) {
+            field = value
+            invalidate()
+            demoAdapter?.buttonAnimationDuration = value
+        }
+
     var cardTextColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
         set(value) {
             field = value
@@ -153,6 +160,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MCompoundQuestionnaire, defStyleAttr, defStyleRes)
         indicatorIcon = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqIndicatorDrawableIcon) ?: indicatorIcon
         indicatorFraction = typedArray.getFloat(R.styleable.MCompoundQuestionnaire_mcqIndicatorSizeFraction, indicatorFraction)
+        buttonAnimationDuration = typedArray.getFloat(R.styleable.MCompoundQuestionnaire_mcqButtonAnimationDuration, buttonAnimationDuration)
         indicatorUpperColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorUpperColor, indicatorUpperColor)
         indicatorLowerColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorLowerColor, indicatorLowerColor)
         indicatorBackgroundColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorBackgroundColor, indicatorBackgroundColor)
@@ -202,7 +210,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         recyclerView?.itemAnimator = DefaultItemAnimator()
         val demoList = mutableListOf<BaseModel>()
         demoList.addAll(items)
-        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, cardTextColor, cardTextSecondColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable, bottomFrame)
+        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, buttonAnimationDuration, cardTextColor, cardTextSecondColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable, bottomFrame)
         tileManager.attach(recyclerView, 0)
 //        demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener {
 //            override fun onItemClick(view: View, position: Int) {

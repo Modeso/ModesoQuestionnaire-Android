@@ -153,7 +153,7 @@ class QuestionnaireCardView : View {
             field = value
             invalidate()
         }
-    val animationDuration: Long = 1000
+    var animationDuration: Float = 1000f
     var maxRadius: Float = 0f
 
     var animatorSet: AnimatorSet = AnimatorSet()
@@ -445,9 +445,9 @@ class QuestionnaireCardView : View {
                     lastY = event.y
                 } else if (event.actionMasked == MotionEvent.ACTION_UP) {
                     if (inCancelCircle(event.x, event.y)) {
-                        animateCancelButton(animationDuration - (animationDuration / 3))
+                        animateCancelButton((animationDuration - (animationDuration / 3)).toLong())
                     } else if (inAcceptCircle(event.x, event.y)) {
-                        animateAcceptButton(animationDuration - (animationDuration / 3))
+                        animateAcceptButton((animationDuration - (animationDuration / 3)).toLong())
                     }
                     lastX = 0f
                     lastY = 0f
