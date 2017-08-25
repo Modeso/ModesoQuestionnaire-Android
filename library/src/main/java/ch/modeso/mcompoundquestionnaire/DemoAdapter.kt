@@ -139,7 +139,7 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
     fun onItemDismiss(viewHolder: ViewHolder, deltaX: Float) {
         val position = viewHolder.adapterPosition
         val targetY = viewHolder.itemView.y - viewHolder.itemView.translationY
-        callbacks.itemDismiss(items[position].id)
+        callbacks.onItemDismiss(items[position].id)
         items.removeAt(position)
         notifyItemRemoved(position)
         val view = viewHolder.itemView

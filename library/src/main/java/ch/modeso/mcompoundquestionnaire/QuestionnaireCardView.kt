@@ -599,7 +599,7 @@ class QuestionnaireCardView : View {
             )
             cardStatus = CardStatus.NONE
             animatorSet.start()
-            cardInteractionCallbacks?.itemNone(tag as String)
+            cardInteractionCallbacks?.onItemNone(tag as String)
             return
         } else if (cardStatus == CardStatus.CANCELED) {
             animatorSet.playTogether(
@@ -656,7 +656,7 @@ class QuestionnaireCardView : View {
                     )
                     cardStatus = CardStatus.ACCEPTED
                     animatorSet.start()
-                    cardInteractionCallbacks?.itemAcceptClick(tag as String)
+                    cardInteractionCallbacks?.onItemAcceptClick(tag as String)
                 }
 
             })
@@ -684,7 +684,7 @@ class QuestionnaireCardView : View {
             )
             cardStatus = CardStatus.ACCEPTED
             animatorSet.start()
-            cardInteractionCallbacks?.itemAcceptClick(tag as String)
+            cardInteractionCallbacks?.onItemAcceptClick(tag as String)
         }
     }
 
@@ -738,7 +738,7 @@ class QuestionnaireCardView : View {
             )
             cardStatus = CardStatus.NONE
             animatorSet.start()
-            cardInteractionCallbacks?.itemNone(tag as String)
+            cardInteractionCallbacks?.onItemNone(tag as String)
             return
         } else if (cardStatus == CardStatus.ACCEPTED) {
             animatorSet.playTogether(
@@ -795,7 +795,7 @@ class QuestionnaireCardView : View {
                     )
                     cardStatus = CardStatus.CANCELED
                     animatorSet.start()
-                    cardInteractionCallbacks?.itemCancelClick(tag as String)
+                    cardInteractionCallbacks?.onItemCancelClick(tag as String)
                 }
 
             })
@@ -823,7 +823,7 @@ class QuestionnaireCardView : View {
             )
             cardStatus = CardStatus.CANCELED
             animatorSet.start()
-            cardInteractionCallbacks?.itemCancelClick(tag as String)
+            cardInteractionCallbacks?.onItemCancelClick(tag as String)
         }
     }
 

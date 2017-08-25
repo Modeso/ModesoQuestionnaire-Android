@@ -249,7 +249,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         addView(frameContainer)
     }
 
-    override fun itemAcceptClick(itemId: String) {
+    override fun onItemAcceptClick(itemId: String) {
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
             if (realItem != null) {
@@ -267,10 +267,10 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
         }
-        cardInteractionCallBacks?.itemAcceptClick(itemId)
+        cardInteractionCallBacks?.onItemAcceptClick(itemId)
     }
 
-    override fun itemCancelClick(itemId: String) {
+    override fun onItemCancelClick(itemId: String) {
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
             if (realItem != null) {
@@ -288,10 +288,10 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
         }
-        cardInteractionCallBacks?.itemCancelClick(itemId)
+        cardInteractionCallBacks?.onItemCancelClick(itemId)
     }
 
-    override fun itemNone(itemId: String) {
+    override fun onItemNone(itemId: String) {
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
             if (realItem != null) {
@@ -309,7 +309,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
         }
-        cardInteractionCallBacks?.itemNone(itemId)
+        cardInteractionCallBacks?.onItemNone(itemId)
     }
 
     fun updateList(itemsList: MutableList<BaseModel>) {
@@ -357,7 +357,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         }
     }
 
-    override fun itemDismiss(itemId: String) {
+    override fun onItemDismiss(itemId: String) {
         dismissNo++
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
@@ -370,7 +370,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
         }
         invalidate()
-        cardInteractionCallBacks?.itemDismiss(itemId)
+        cardInteractionCallBacks?.onItemDismiss(itemId)
     }
 
     fun onItemUnDismiss(view: View) {
@@ -390,13 +390,13 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             if (tileManager.mCurSelectedPosition == position) {
                 demoAdapter?.items?.add(position, realItem)
                 isUnDismiss = false
-                cardInteractionCallBacks?.itemNone(id)
+                cardInteractionCallBacks?.onItemNone(id)
                 demoAdapter?.notifyItemInserted(position)
             } else {
                 recyclerView?.smoothScrollToPosition(position)
                 val scrollListener = ScrolledListener(position, realItem, demoAdapter) {
                     isUnDismiss = false
-                    cardInteractionCallBacks?.itemNone(id)
+                    cardInteractionCallBacks?.onItemNone(id)
                 }
                 recyclerView?.addOnScrollListener(scrollListener)
             }

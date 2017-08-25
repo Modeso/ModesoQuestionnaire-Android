@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         mcompound_questionnaire.cardInteractionCallBacks = this
     }
 
-    override fun itemAcceptClick(itemId: String) {
+    override fun onItemAcceptClick(itemId: String) {
         Toast.makeText(this, "item $itemId Accepted", Toast.LENGTH_SHORT).show()
         val items = title.filter { it.id == itemId }
         items.forEach {
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         }
     }
 
-    override fun itemCancelClick(itemId: String) {
+    override fun onItemCancelClick(itemId: String) {
         Toast.makeText(this, "item $itemId Canceled", Toast.LENGTH_SHORT).show()
         val items = title.filter { it.id == itemId }
         items.forEach {
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         }
     }
 
-    override fun itemNone(itemId: String) {
+    override fun onItemNone(itemId: String) {
         Toast.makeText(this, "item $itemId Idle", Toast.LENGTH_SHORT).show()
         val items = title.filter { it.id == itemId }
         items.forEach {
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         }
     }
 
-    override fun itemDismiss(itemId: String) {
+    override fun onItemDismiss(itemId: String) {
         Toast.makeText(this, "item $itemId Dismissed", Toast.LENGTH_SHORT).show()
         val items = title.filter { it.id == itemId }
         items.forEach {
