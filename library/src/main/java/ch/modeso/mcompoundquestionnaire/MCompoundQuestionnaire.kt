@@ -12,6 +12,7 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -142,6 +143,42 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
 
     private val topPadding = (30 * density).toInt()
     private val bottomView = (30 * density) + 20 * density
+
+    var cardMoving = false
+        set(value) {
+            if (!value) {
+                textHeight = measuredHeight - bottomView
+            }
+            field = value
+            invalidate()
+        }
+    private var textVisible = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+    private var textHeight = measuredHeight - bottomView
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    private var textRotation = 0f
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    private var textRotationY = textHeight
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var cardMovingHorizontal = false
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     constructor(context: Context) : this(context, null)
 
@@ -336,9 +373,25 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-        if (dismissNo == 0) {
+    override fun dispatchDraw(canvas: Canvas?) {
+        super.dispatchDraw(canvas)
+        if (cardMoving && textVisible) {
+            textView.isDrawingCacheEnabled = true
+            textView.setTextColor(notApplicableColor)
+            textView.textSize = 16f
+            textView.gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
+            textView.measure(View.MeasureSpec.makeMeasureSpec(measuredWidth, View.MeasureSpec.EXACTLY)
+                    , View.MeasureSpec.makeMeasureSpec((bottomView).toInt(), View.MeasureSpec.AT_MOST))
+            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+            textView.text = context.getString(R.string.not_applicable)
+            textView.typeface = Typeface.DEFAULT_BOLD
+            textView.rotation = textRotation
+            if (textView.drawingCache != null) {
+                canvas?.rotate(textRotation, 0f, textRotationY)
+                canvas?.drawBitmap(textView.drawingCache, 0f, textHeight, textPaint)
+            }
+            textView.isDrawingCacheEnabled = false
+        } else if (dismissNo == 0 && !cardMovingHorizontal) {
             notApplicableArrowDrawable.bounds.set(
                     (measuredWidth / 2 - 2 * progressBarSize / 3).toInt(),
                     (measuredHeight - bottomView - 3 * progressBarSize / 4 - topPadding / 3).toInt(),
@@ -348,7 +401,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             notApplicableArrowDrawable.draw(canvas)
 
             textView.isDrawingCacheEnabled = true
-            textView.setTextColor(notApplicableColor)
+            textView.setTextColor(cardTextColor)
             textView.textSize = 16f
             textView.gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
             textView.measure(View.MeasureSpec.makeMeasureSpec(measuredWidth, View.MeasureSpec.EXACTLY)
@@ -361,6 +414,22 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
             textView.isDrawingCacheEnabled = false
         }
+    }
+
+    fun onCardMoving(fraction: Float, cardY: Float, cardHeight: Int, pulling: Boolean) {
+        textHeight = measuredHeight - bottomView - (textHeight * fraction)
+        Log.d("test", "textHeight: $textHeight, cardY+cardHeight: ${cardY + cardHeight}")
+        textVisible = dismissNo == 0
+        cardMovingHorizontal = true
+        textRotationY = (cardY + cardHeight / 2)
+        if (textHeight <= cardY + cardHeight - 3 * topPadding / 2) {
+            textHeight = cardY + cardHeight - 3 * topPadding / 2
+            textVisible = true
+        }
+        if (pulling && dismissNo == 1) {
+            textVisible = true
+        }
+        textRotation = CustomItemTouchHelper.ANGLE * fraction
     }
 
     override fun onItemDismiss(itemId: String) {
@@ -395,6 +464,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             realItem.status = QuestionnaireCardView.CardStatus.NONE
             (view.parent as ViewGroup).removeView(view)
             dismissNo--
+            if (dismissNo == 0) {
+                cardMovingHorizontal = false
+            }
             val position = items.filter { it.status != QuestionnaireCardView.CardStatus.NOT_APPLICABLE }.indexOf(realItem)
             if (tileManager.mCurSelectedPosition == position) {
                 demoAdapter?.items?.add(position, realItem)

@@ -8,7 +8,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
-import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.content.ContextCompat
@@ -231,6 +230,9 @@ class QuestionnaireCardView : View {
     var cardMoving = false
         set(value) {
             field = value
+            if (parent != null && parent.parent != null && parent.parent.parent != null && parent.parent.parent is MCompoundQuestionnaire) {
+                (parent.parent.parent as MCompoundQuestionnaire).cardMoving = value
+            }
             invalidate()
         }
     private var notApplicableRadius = buttonsRadius + maxRadius
@@ -324,7 +326,10 @@ class QuestionnaireCardView : View {
         acceptBottom = textHeight + 2 * padding + 2 * buttonsRadius
     }
 
-    fun onCardMovement(fraction: Float) {
+    fun onCardMovement(fraction: Float, pulling: Boolean) {
+        if (parent != null && parent.parent != null && parent.parent.parent != null && parent.parent.parent is MCompoundQuestionnaire) {
+            (parent.parent.parent as MCompoundQuestionnaire).onCardMoving(fraction, y, measuredHeight, pulling)
+        }
         cardMoving = fraction > 0f && !movingHorizontal
         if (fraction > 0.07f) {
             notApplicableRadius = buttonsRadius + maxRadius * (fraction - 0.07f)
@@ -352,19 +357,19 @@ class QuestionnaireCardView : View {
                     (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
             )
             notApplicableDrawable.draw(canvas)
-            textView.isDrawingCacheEnabled = true
-            textView.setTextColor(notApplicableColor)
-            textView.textSize = textSize + 3 * lastFraction
-            textView.gravity = Gravity.CENTER_HORIZONTAL
-            textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY)
-                    , View.MeasureSpec.makeMeasureSpec(buttonsRadius.toInt(), View.MeasureSpec.AT_MOST))
-            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
-            textView.text = context.getString(R.string.not_applicable)
-            textView.typeface = Typeface.DEFAULT_BOLD
-            if (textView.drawingCache != null) {
-                canvas?.drawBitmap(textView.drawingCache, padding, (notApplicableCenterY + 5 * buttonsRadius / 3), textPaint)
-            }
-            textView.isDrawingCacheEnabled = false
+//            textView.isDrawingCacheEnabled = true
+//            textView.setTextColor(notApplicableColor)
+//            textView.textSize = textSize + 3 * lastFraction
+//            textView.gravity = Gravity.CENTER_HORIZONTAL
+//            textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY)
+//                    , View.MeasureSpec.makeMeasureSpec(buttonsRadius.toInt(), View.MeasureSpec.AT_MOST))
+//            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+//            textView.text = context.getString(R.string.not_applicable)
+//            textView.typeface = Typeface.DEFAULT_BOLD
+//            if (textView.drawingCache != null) {
+//                canvas?.drawBitmap(textView.drawingCache, padding, (notApplicableCenterY + 5 * buttonsRadius / 3), textPaint)
+//            }
+//            textView.isDrawingCacheEnabled = false
         } else {
 
             if (cardStatus == CardStatus.ACCEPTED) {
@@ -456,7 +461,7 @@ class QuestionnaireCardView : View {
                     mPosY += dy
                     this.x = mPosX
                     this.y = mPosY
-                    onCardMovement((mPosY - originalY) / initialY)
+                    onCardMovement((mPosY - originalY) / initialY, true)
                     cardMoving = true
                     this.rotation = rotationAngle * (mPosY - originalY) / initialY
                     alpha = 0.5F
