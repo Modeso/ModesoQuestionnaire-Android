@@ -290,7 +290,7 @@ class QuestionnaireCardView : View {
         acceptDrawableRight = (2 * padding + 2 * buttonsRadius + 4 * buttonsRadius / 3).toInt()
         acceptDrawableBottom = (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
 
-        notApplicableCenterY = textHeight + 2 * padding - buttonsRadius
+        notApplicableCenterY = textHeight + 2 * padding
         notApplicableCenterX = measuredWidth / 2f
         if (cardStatus == CardStatus.ACCEPTED) {
             cancelLeft += buttonsRadius
@@ -326,7 +326,11 @@ class QuestionnaireCardView : View {
 
     fun onCardMovement(fraction: Float) {
         cardMoving = fraction > 0f && !movingHorizontal
-        notApplicableRadius = buttonsRadius + maxRadius * fraction
+        if (fraction > 0.07f) {
+            notApplicableRadius = buttonsRadius + maxRadius * (fraction - 0.07f)
+        } else {
+            notApplicableRadius = buttonsRadius
+        }
         lastFraction = fraction
         invalidate()
     }
@@ -358,7 +362,7 @@ class QuestionnaireCardView : View {
             textView.text = context.getString(R.string.not_applicable)
             textView.typeface = Typeface.DEFAULT_BOLD
             if (textView.drawingCache != null) {
-                canvas?.drawBitmap(textView.drawingCache, padding, (notApplicableCenterY + 2 * buttonsRadius), textPaint)
+                canvas?.drawBitmap(textView.drawingCache, padding, (notApplicableCenterY + 5 * buttonsRadius / 3), textPaint)
             }
             textView.isDrawingCacheEnabled = false
         } else {
@@ -828,7 +832,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun cancelLeftAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero) padding + buttonsRadius else if (shrink) {
+        val newValue = if (toZero) padding + buttonsRadius else if (shrink) {
             if (reverse) {
                 padding
             } else {
@@ -849,7 +853,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun cancelTopAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
                 textHeight + 2 * padding
             } else {
@@ -870,7 +874,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun cancelRightAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero) padding + buttonsRadius else if (shrink) {
+        val newValue = if (toZero) padding + buttonsRadius else if (shrink) {
             if (reverse) {
                 padding + 2 * buttonsRadius
             } else {
@@ -891,7 +895,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun cancelBottomAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero)  textHeight + 2 * padding + buttonsRadius else if (shrink) {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
                 textHeight + 2 * padding + 2 * buttonsRadius
             } else {
@@ -912,7 +916,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun acceptLeftAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero) 2 * padding + 3 * buttonsRadius else if (shrink) {
+        val newValue = if (toZero) 2 * padding + 3 * buttonsRadius else if (shrink) {
             if (reverse) {
                 2 * padding + 2 * buttonsRadius
             } else {
@@ -933,7 +937,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun acceptTopAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero) textHeight + 2 * padding + buttonsRadius  else if (shrink) {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
                 textHeight + 2 * padding
             } else {
@@ -954,7 +958,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun acceptRightAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero) 2 * padding + 3 * buttonsRadius else if (shrink) {
+        val newValue = if (toZero) 2 * padding + 3 * buttonsRadius else if (shrink) {
             if (reverse) {
                 2 * padding + 4 * buttonsRadius
             } else {
@@ -975,7 +979,7 @@ class QuestionnaireCardView : View {
     }
 
     private fun acceptBottomAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
-        val newValue = if(toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
                 textHeight + 2 * padding + 2 * buttonsRadius
             } else {
