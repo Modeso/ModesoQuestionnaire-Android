@@ -335,9 +335,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         if (dismissNo == 0) {
             notApplicableArrowDrawable.bounds.set(
                     (measuredWidth / 2 - 2 * progressBarSize / 3).toInt(),
-                    (measuredHeight - bottomView - 3 * progressBarSize / 4).toInt(),
+                    (measuredHeight - bottomView - 3 * progressBarSize / 4 - topPadding/3).toInt(),
                     (measuredWidth / 2 + 2 * progressBarSize / 3).toInt(),
-                    (measuredHeight - bottomView + progressBarSize / 4).toInt()
+                    (measuredHeight - bottomView + progressBarSize / 4- topPadding/3).toInt()
             )
             notApplicableArrowDrawable.draw(canvas)
 
