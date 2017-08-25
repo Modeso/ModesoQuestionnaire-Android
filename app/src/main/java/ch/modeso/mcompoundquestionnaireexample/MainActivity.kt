@@ -60,4 +60,8 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         }
     }
 
+    override fun onQuestionnaireFinish() {
+        Toast.makeText(this, "Questionnaire is Finished thank you", Toast.LENGTH_SHORT).show()
+    }
+
 }

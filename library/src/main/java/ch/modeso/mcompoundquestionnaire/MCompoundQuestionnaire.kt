@@ -268,6 +268,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
         }
         cardInteractionCallBacks?.onItemAcceptClick(itemId)
+        if (checkQuestionnaire()) {
+            cardInteractionCallBacks?.onQuestionnaireFinish()
+        }
     }
 
     override fun onItemCancelClick(itemId: String) {
@@ -289,6 +292,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
         }
         cardInteractionCallBacks?.onItemCancelClick(itemId)
+        if (checkQuestionnaire()) {
+            cardInteractionCallBacks?.onQuestionnaireFinish()
+        }
     }
 
     override fun onItemNone(itemId: String) {
@@ -335,9 +341,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         if (dismissNo == 0) {
             notApplicableArrowDrawable.bounds.set(
                     (measuredWidth / 2 - 2 * progressBarSize / 3).toInt(),
-                    (measuredHeight - bottomView - 3 * progressBarSize / 4 - topPadding/3).toInt(),
+                    (measuredHeight - bottomView - 3 * progressBarSize / 4 - topPadding / 3).toInt(),
                     (measuredWidth / 2 + 2 * progressBarSize / 3).toInt(),
-                    (measuredHeight - bottomView + progressBarSize / 4- topPadding/3).toInt()
+                    (measuredHeight - bottomView + progressBarSize / 4 - topPadding / 3).toInt()
             )
             notApplicableArrowDrawable.draw(canvas)
 
@@ -371,6 +377,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         }
         invalidate()
         cardInteractionCallBacks?.onItemDismiss(itemId)
+        if (checkQuestionnaire()) {
+            cardInteractionCallBacks?.onQuestionnaireFinish()
+        }
     }
 
     fun onItemUnDismiss(view: View) {
@@ -453,5 +462,14 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 recyclerView?.removeOnScrollListener(this)
             }
         }
+    }
+
+    private fun checkQuestionnaire(): Boolean {
+        val noneItems = items.filter { it.status == QuestionnaireCardView.CardStatus.NONE }
+        return noneItems.isEmpty()
+    }
+
+    override fun onQuestionnaireFinish() {
+
     }
 }

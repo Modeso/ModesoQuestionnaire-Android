@@ -8,4 +8,5 @@ interface CardInteractionCallbacks {
     fun onItemCancelClick(itemId: String)
     fun onItemNone(itemId: String)
     fun onItemDismiss(itemId: String)
+    fun onQuestionnaireFinish()
 }
