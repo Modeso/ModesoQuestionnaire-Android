@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar!!.elevation = 0f
-        for (i in 0..19) {
+        for (i in 0..4) {
             title.add(UserModel(randText[i % 5], "additional info $i", QuestionnaireCardView.CardStatus.NONE))
         }
         mcompound_questionnaire.updateList(title.toMutableList())

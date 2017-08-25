@@ -60,6 +60,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         set(value) {
             field = value
             invalidate()
+            questionnaireIndicator?.duration = value
             demoAdapter?.buttonAnimationDuration = value
         }
 
@@ -199,6 +200,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         questionnaireIndicator?.upperColor = indicatorUpperColor
         questionnaireIndicator?.bgColor = indicatorBackgroundColor
         questionnaireIndicator?.indicator = indicatorIcon
+        questionnaireIndicator?.duration = buttonAnimationDuration
         questionnaireIndicator?.colorListAddAll(items.map { getCardColor(it.status) })
         addView(questionnaireIndicator)
     }
