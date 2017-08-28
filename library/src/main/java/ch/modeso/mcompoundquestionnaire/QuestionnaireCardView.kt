@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
@@ -345,31 +346,66 @@ class QuestionnaireCardView : View {
         background = bgDrawable
 
         if (cardMoving) {
-            notApplicableCirclePaint.color = notApplicableColor
-            notApplicableCircleRectF.set(notApplicableCenterX - notApplicableRadius
-                    , notApplicableCenterY - notApplicableRadius, notApplicableCenterX + notApplicableRadius
-                    , notApplicableCenterY + notApplicableRadius)
-            canvas?.drawOval(notApplicableCircleRectF, notApplicableCirclePaint)
-            notApplicableDrawable.bounds.set(
-                    (notApplicableCenterX - 2 * buttonsRadius / 3).toInt(),
-                    (notApplicableCenterY - 2 * buttonsRadius / 3).toInt(),
-                    (notApplicableCenterX + 2 * buttonsRadius / 3).toInt(),
-                    (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
-            )
-            notApplicableDrawable.draw(canvas)
-//            textView.isDrawingCacheEnabled = true
-//            textView.setTextColor(notApplicableColor)
-//            textView.textSize = textSize + 3 * lastFraction
-//            textView.gravity = Gravity.CENTER_HORIZONTAL
-//            textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY)
-//                    , View.MeasureSpec.makeMeasureSpec(buttonsRadius.toInt(), View.MeasureSpec.AT_MOST))
-//            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
-//            textView.text = context.getString(R.string.not_applicable)
-//            textView.typeface = Typeface.DEFAULT_BOLD
-//            if (textView.drawingCache != null) {
-//                canvas?.drawBitmap(textView.drawingCache, padding, (notApplicableCenterY + 5 * buttonsRadius / 3), textPaint)
-//            }
-//            textView.isDrawingCacheEnabled = false
+            if (lastFraction <= 0.07f) {
+                val buttonFraction = lastFraction / 0.07f
+                val newCancelLeft = cancelLeft + (notApplicableCenterX - (cancelLeft + buttonsRadius)) * buttonFraction
+                val newCancelTop = cancelTop + (notApplicableCenterY - (cancelTop + buttonsRadius)) * buttonFraction
+                val newCancelRight = cancelRight + (notApplicableCenterX - (cancelRight - buttonsRadius)) * buttonFraction
+                val newCancelBottom = cancelBottom + (notApplicableCenterY - (cancelBottom - buttonsRadius)) * buttonFraction
+                val newAcceptLeft = acceptLeft + (notApplicableCenterX - (acceptLeft + buttonsRadius)) * buttonFraction
+                val newAcceptTop = acceptTop + (notApplicableCenterY - (acceptTop + buttonsRadius)) * buttonFraction
+                val newAcceptRight = acceptRight + (notApplicableCenterX - (acceptRight - buttonsRadius)) * buttonFraction
+                val newAcceptBottom = acceptBottom + (notApplicableCenterY - (acceptBottom - buttonsRadius)) * buttonFraction
+                val newCancelDrawableLeft = (cancelDrawableLeft + (notApplicableCenterX - (cancelDrawableLeft + cancelDrawableRight) / 2) * buttonFraction).toInt()
+                val newCancelDrawableTop = (cancelDrawableTop + (notApplicableCenterY - (cancelDrawableTop + cancelDrawableBottom) / 2) * buttonFraction).toInt()
+                val newCancelDrawableRight = (cancelDrawableRight + (notApplicableCenterX - (cancelDrawableLeft + cancelDrawableRight) / 2) * buttonFraction).toInt()
+                val newCancelDrawableBottom = (cancelDrawableBottom + (notApplicableCenterY - (cancelDrawableTop + cancelDrawableBottom) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableLeft = (acceptDrawableLeft + (notApplicableCenterX - (acceptDrawableLeft + acceptDrawableRight) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableTop = (acceptDrawableTop + (notApplicableCenterY - (cancelDrawableTop + acceptDrawableBottom) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableRight = (acceptDrawableRight + (notApplicableCenterX - (acceptDrawableLeft + acceptDrawableRight) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableBottom = (acceptDrawableBottom + (notApplicableCenterY - (cancelDrawableTop + acceptDrawableBottom) / 2) * buttonFraction).toInt()
+
+                val alpha = (255 * (1 - buttonFraction)).toInt()
+
+                cancelCirclePaint.color = Color.argb(alpha, Color.red(cancelColor), Color.green(cancelColor), Color.blue(cancelColor))
+                cancelCircleRectF.set(newCancelLeft, newCancelTop, newCancelRight, newCancelBottom)
+                canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
+
+                acceptCirclePaint.color = Color.argb(alpha, Color.red(acceptColor), Color.green(acceptColor), Color.blue(acceptColor))
+                acceptCircleRectF.set(newAcceptLeft, newAcceptTop, newAcceptRight, newAcceptBottom)
+                canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
+
+                cancelDrawable.bounds?.set(
+                        newCancelDrawableLeft,
+                        newCancelDrawableTop,
+                        newCancelDrawableRight,
+                        newCancelDrawableBottom
+                )
+                cancelDrawable.alpha = cancelDrawableAlpha
+                cancelDrawable.draw(canvas)
+
+                acceptDrawable.bounds?.set(
+                        newAcceptDrawableLeft,
+                        newAcceptDrawableTop,
+                        newAcceptDrawableRight,
+                        newAcceptDrawableBottom
+                )
+                acceptDrawable.alpha = acceptDrawableAlpha
+                acceptDrawable.draw(canvas)
+            } else {
+                notApplicableCirclePaint.color = notApplicableColor
+                notApplicableCircleRectF.set(notApplicableCenterX - notApplicableRadius
+                        , notApplicableCenterY - notApplicableRadius, notApplicableCenterX + notApplicableRadius
+                        , notApplicableCenterY + notApplicableRadius)
+                canvas?.drawOval(notApplicableCircleRectF, notApplicableCirclePaint)
+                notApplicableDrawable.bounds.set(
+                        (notApplicableCenterX - 2 * buttonsRadius / 3).toInt(),
+                        (notApplicableCenterY - 2 * buttonsRadius / 3).toInt(),
+                        (notApplicableCenterX + 2 * buttonsRadius / 3).toInt(),
+                        (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
+                )
+                notApplicableDrawable.draw(canvas)
+            }
         } else {
 
             if (cardStatus == CardStatus.ACCEPTED) {
