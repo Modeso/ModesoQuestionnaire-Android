@@ -5,15 +5,13 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.MotionEvent.INVALID_POINTER_ID
@@ -21,6 +19,15 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.graphics.drawable.BitmapDrawable
+import android.util.DisplayMetrics
+import android.opengl.ETC1.getHeight
+import android.opengl.ETC1.getWidth
+import android.graphics.Bitmap
+import android.support.v4.graphics.drawable.DrawableCompat
+
+
+
 
 /**
  * Created by Hazem on 7/27/2017
@@ -81,6 +88,9 @@ class QuestionnaireCardView : View {
             field = value
             invalidate()
         }
+
+
+
 
     var cancelDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_close)
         set(value) {
@@ -389,7 +399,16 @@ class QuestionnaireCardView : View {
                         newAcceptDrawableBottom
                 )
                 acceptDrawable.alpha = acceptDrawableAlpha
-                acceptDrawable.draw(canvas)
+                //@TODO: Check the version of the device to solve the pre-lollipop  vector drawable issues
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+                    //handle Issue: Vector drawable not shown in pre-Lollipop devices
+                    // Here we convert the vector to bitmap and drawing it
+                    val bitmap = getBitmapFromVectorDrawable(context,R.drawable.ic_check);
+                    canvas?.drawBitmap(bitmap,null,acceptDrawable.bounds,null)
+                    Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
+                }else {
+                    acceptDrawable.draw(canvas)
+                }
             } else {
                 notApplicableCirclePaint.color = notApplicableColor
                 notApplicableCircleRectF.set(notApplicableCenterX - notApplicableRadius
@@ -404,6 +423,7 @@ class QuestionnaireCardView : View {
                 )
                 notApplicableDrawable.draw(canvas)
             }
+            Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
         } else {
 
             if (cardStatus == CardStatus.ACCEPTED) {
@@ -442,7 +462,16 @@ class QuestionnaireCardView : View {
                     acceptDrawableBottom
             )
             acceptDrawable.alpha = acceptDrawableAlpha
-            acceptDrawable.draw(canvas)
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+                //handle Issue: Vector drawable not shown in pre-Lollipop devices
+                // Here we convert the vector to bitmap and drawing it
+                val bitmap = getBitmapFromVectorDrawable(context,R.drawable.ic_check);
+                canvas?.drawBitmap(bitmap,null,acceptDrawable.bounds,null)
+                Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
+            }else {
+                acceptDrawable.draw(canvas)
+            }
+
         }
 
         //text
@@ -1175,6 +1204,20 @@ class QuestionnaireCardView : View {
         animator.duration = duration
         animator.addUpdateListener { cancelDrawableAlpha = (it.animatedValue as Int) }
         return animator
+    }
+    fun getBitmapFromVectorDrawable(context: Context, drawableId: Int): Bitmap {
+        var drawable = ContextCompat.getDrawable(context, drawableId)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = DrawableCompat.wrap(drawable).mutate()
+        }
+
+        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth,
+                drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        return bitmap
     }
 
 }
