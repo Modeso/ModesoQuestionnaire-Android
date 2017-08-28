@@ -22,7 +22,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 
-
 /**
  * Created by Hazem on 7/27/2017
  */
@@ -206,7 +205,6 @@ class QuestionnaireCardView : View {
             field = value
             invalidate()
         }
-
 
     var animationDuration: Float = 1000f
     var maxRadius: Float = 0f
@@ -426,7 +424,6 @@ class QuestionnaireCardView : View {
                 acceptCircleRectF.set(acceptLeft, acceptTop, acceptRight, acceptBottom)
                 canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
             }
-
 
             //buttons icon
             cancelDrawable.bounds?.set(

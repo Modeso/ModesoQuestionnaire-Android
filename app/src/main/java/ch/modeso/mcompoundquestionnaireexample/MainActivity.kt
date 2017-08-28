@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import ch.modeso.mcompoundquestionnaire.CardInteractionCallbacks
 import ch.modeso.mcompoundquestionnaire.QuestionnaireCardView
+/* ktlint-disable no-wildcard-imports */
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 

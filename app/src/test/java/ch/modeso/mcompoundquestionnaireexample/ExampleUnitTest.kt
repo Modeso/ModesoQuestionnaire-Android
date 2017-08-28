@@ -1,7 +1,7 @@
 package ch.modeso.mcompoundquestionnaireexample
 
 import org.junit.Test
-
+/* ktlint-disable no-wildcard-imports */
 import org.junit.Assert.*
 
 /**

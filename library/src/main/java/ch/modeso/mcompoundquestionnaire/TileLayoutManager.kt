@@ -23,7 +23,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
 
     internal val LAYOUT_END = 1
 
-
     private var mFirstVisiblePosition = 0
     private var mLastVisiblePos = 0
     private var mInitialSelectedPosition = 0
@@ -68,7 +67,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
         return lp is LayoutParams
     }
 
-
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State?) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onLayoutChildren() called with: state = [$state]")
@@ -95,7 +93,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
         firstFillCover(recycler, 0)
     }
 
-
     private fun reset() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "reset: ")
@@ -114,7 +111,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
             mCurSelectedView = null
         }
     }
-
 
     private fun firstFillCover(recycler: RecyclerView.Recycler, scrollDelta: Int) {
         firstFillWithHorizontal(recycler)
@@ -189,7 +185,7 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
      * *
      * @param startPosition start position to fill left
      * *
-     * @param startOffset   layout start offset
+     * @param startOffset layout start offset
      * *
      * @param leftEdge
      */
@@ -228,7 +224,7 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
      * *
      * @param startPosition start position to fill right
      * *
-     * @param startOffset   layout start offset
+     * @param startOffset layout start offset
      * *
      * @param rightEdge
      */
@@ -260,7 +256,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
             i++
         }
     }
-
 
     private fun fillCover(recycler: RecyclerView.Recycler, scrollDelta: Int) {
         if (itemCount == 0) {
@@ -297,7 +292,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
         return (child.width / 2 - pendingOffset + child.left - parentCenter).toInt()
 
     }
-
 
     /**
      * @param recycler
@@ -458,7 +452,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
         var mScrollDelta: Int = 0
     }
 
-
     override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler, state: RecyclerView.State): Int {
         // When dx is positive，finger fling from right to left(←)，scrollX+
         if (childCount == 0 || dx == 0) {
@@ -518,9 +511,9 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
         /**
          * @param recyclerView The RecyclerView which item view belong to.
          * *
-         * @param item         The current selected view
+         * @param item The current selected view
          * *
-         * @param position     The current selected view's position
+         * @param position The current selected view's position
          */
         fun onItemSelected(recyclerView: RecyclerView, item: View, position: Int)
     }
@@ -547,8 +540,7 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
         recyclerView.addOnScrollListener(mInnerScrollListener)
     }
 
-    lateinit internal var mRecyclerView: RecyclerView
-
+    internal lateinit var mRecyclerView: RecyclerView
 
     fun setCallbackInFling(callbackInFling: Boolean) {
         mCallbackInFling = callbackInFling
@@ -625,7 +617,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
         return true
     }
 
-
     override fun smoothScrollToPosition(recyclerView: RecyclerView?, state: RecyclerView.State?, position: Int) {
         val linearSmoothScroller = TileSmoothScroller(recyclerView!!.context)
         linearSmoothScroller.targetPosition = position
@@ -680,7 +671,6 @@ class TileLayoutManager : RecyclerView.LayoutManager(), RecyclerView.SmoothScrol
             val containerCenter = ((end - start) / 2f).toInt()
             return containerCenter - childCenter
         }
-
 
         override fun onTargetFound(targetView: View, state: RecyclerView.State?, action: RecyclerView.SmoothScroller.Action) {
             val dx = calculateDxToMakeCentral(targetView)
