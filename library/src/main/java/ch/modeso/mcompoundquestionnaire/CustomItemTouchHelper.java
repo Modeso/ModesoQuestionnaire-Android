@@ -275,6 +275,11 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
                 if (mSelected.getAdapterPosition() != mTileLayoutManager.getCurSelectedPosition()) {
                     return false;
                 }
+                if (mSelected.itemView instanceof QuestionnaireCardView) {
+                    if (((QuestionnaireCardView) mSelected.itemView).getCardStatus() != QuestionnaireCardView.CardStatus.NONE) {
+                        return false;
+                    }
+                }
             }
             return mSelected != null;
         }
@@ -973,7 +978,8 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         viewHolder.itemView.setRotation(alpha);
         viewHolder.itemView.setTranslationY(dY);
         if (viewHolder.itemView instanceof QuestionnaireCardView && !((QuestionnaireCardView) viewHolder.itemView).getMovingHorizontal()) {
-            if (mActivePointerId != ACTIVE_POINTER_ID_NONE) {
+            if (mActivePointerId != ACTIVE_POINTER_ID_NONE &&
+                    ((QuestionnaireCardView) mSelected.itemView).getCardStatus() == QuestionnaireCardView.CardStatus.NONE) {
                 ((QuestionnaireCardView) viewHolder.itemView).onCardMovement(dY / max, false);
                 ((QuestionnaireCardView) viewHolder.itemView).setCardMoving(true);
 
