@@ -6,12 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.support.annotation.DrawableRes
-import android.support.annotation.NonNull
-import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.animation.AnimatorCompatHelper
 import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
@@ -123,7 +119,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             field = value
             demoAdapter?.notApplicableDrawable = value
         }
-    var notApplicableArrowDrawable: Drawable =  Utils.getVectorDrawable(context, R.drawable.ic_arrow_downward)
+    var notApplicableArrowDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_arrow_downward)
         set(value) {
             field = value
             invalidate()
@@ -190,7 +186,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-       AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         init(attrs, defStyleAttr)
     }
 
@@ -202,8 +198,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     private fun init(attrs: AttributeSet?, defStyleAttr: Int = 0, defStyleRes: Int = 0) {
         setWillNotDraw(false)
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MCompoundQuestionnaire, defStyleAttr, defStyleRes)
-        indicatorIcon = Utils.getVectorDrawable(context,typedArray.getResourceId(R.styleable.
-                MCompoundQuestionnaire_mcqIndicatorDrawableIcon, R.drawable.ic_indicator))?:indicatorIcon
+        indicatorIcon = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqIndicatorDrawableIcon, R.drawable.ic_indicator)) ?: indicatorIcon
         indicatorFraction = typedArray.getFloat(R.styleable.MCompoundQuestionnaire_mcqIndicatorSizeFraction, indicatorFraction)
         buttonAnimationDuration = typedArray.getFloat(R.styleable.MCompoundQuestionnaire_mcqButtonAnimationDuration, buttonAnimationDuration)
         indicatorUpperColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorUpperColor, indicatorUpperColor)
@@ -215,14 +211,14 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         cancelColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqCancelColor, cancelColor)
         notApplicableColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqNotApplicableColor, notApplicableColor)
         cardBackgroundDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqCardBackgroundDrawable) ?: cardBackgroundDrawable
-        acceptDrawable = Utils.getVectorDrawable(context,typedArray.getResourceId(R.styleable.
-                MCompoundQuestionnaire_mcqAcceptDrawable, R.drawable.ic_check))?: acceptDrawable
-        cancelDrawable = Utils.getVectorDrawable(context,typedArray.getResourceId(R.styleable.
+        acceptDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqAcceptDrawable, R.drawable.ic_check)) ?: acceptDrawable
+        cancelDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
                 MCompoundQuestionnaire_mcqCancelDrawable, R.drawable.ic_close)) ?: cancelDrawable
-        notApplicableDrawable = Utils.getVectorDrawable(context,typedArray.getResourceId(R.styleable.
-                MCompoundQuestionnaire_mcqNotApplicableDrawable, R.drawable.ic_not_applicable))?:notApplicableDrawable
-        notApplicableArrowDrawable = Utils.getVectorDrawable(context,typedArray.getResourceId(R.styleable.
-                MCompoundQuestionnaire_mcqNotApplicableArrowDrawable, R.drawable.ic_arrow_downward))?:notApplicableArrowDrawable
+        notApplicableDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqNotApplicableDrawable, R.drawable.ic_not_applicable)) ?: notApplicableDrawable
+        notApplicableArrowDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqNotApplicableArrowDrawable, R.drawable.ic_arrow_downward)) ?: notApplicableArrowDrawable
         typedArray.recycle()
 
         orientation = LinearLayout.VERTICAL
@@ -555,17 +551,4 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     override fun onQuestionnaireFinish() {
 
     }
-
-    /*fun  getVectorDrawable(@NonNull context:Context , @DrawableRes drawable:Int ):Drawable {
-            var vectorDrawable:Drawable ;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    vectorDrawable = ContextCompat.getDrawable(context, drawable);
-                } else {
-                    vectorDrawable = VectorDrawableCompat.create(context.getResources(), drawable, null) as Drawable
-                    if (vectorDrawable != null) {
-                        vectorDrawable = DrawableCompat.wrap(vectorDrawable);
-                    }
-                }
-            return vectorDrawable
-    }*/
 }

@@ -14,14 +14,14 @@ import android.support.v4.graphics.drawable.DrawableCompat
  */
 class Utils {
     companion object {
-        fun  getVectorDrawable(@NonNull context: Context, @DrawableRes drawable:Int ): Drawable {
-            var vectorDrawable: Drawable;
+        fun getVectorDrawable(@NonNull context: Context, @DrawableRes drawable: Int ): Drawable {
+            var vectorDrawable: Drawable
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                vectorDrawable = ContextCompat.getDrawable(context, drawable);
+                vectorDrawable = ContextCompat.getDrawable(context, drawable)
             } else {
                 vectorDrawable = VectorDrawableCompat.create(context.getResources(), drawable, null) as Drawable
                 if (vectorDrawable != null) {
-                    vectorDrawable = DrawableCompat.wrap(vectorDrawable);
+                    vectorDrawable = DrawableCompat.wrap(vectorDrawable)
                 }
             }
             return vectorDrawable

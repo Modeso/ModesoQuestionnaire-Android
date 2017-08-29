@@ -5,6 +5,7 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
+/* ktlint-disable no-wildcard-imports */
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -19,16 +20,7 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.graphics.drawable.BitmapDrawable
-import android.util.DisplayMetrics
-import android.opengl.ETC1.getHeight
-import android.opengl.ETC1.getWidth
-import android.graphics.Bitmap
-
 import android.support.v4.graphics.drawable.DrawableCompat
-
-
-
 
 /**
  * Created by Hazem on 7/27/2017
@@ -84,14 +76,11 @@ class QuestionnaireCardView : View {
             invalidate()
         }
 
-    var acceptDrawable: Drawable = Utils.getVectorDrawable(context,R.drawable.ic_check)//.getDrawable(context, R.drawable.ic_check)
+    var acceptDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_check)//.getDrawable(context, R.drawable.ic_check)
         set(value) {
             field = value
             invalidate()
         }
-
-
-
 
     var cancelDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_close)
         set(value) {
@@ -400,7 +389,7 @@ class QuestionnaireCardView : View {
                         newAcceptDrawableBottom
                 )
                 acceptDrawable.alpha = acceptDrawableAlpha
-                Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
+                Log.d("acceptDrawable", "acceptDrawable.bounds :${acceptDrawable.bounds}")
                 acceptDrawable.draw(canvas)
 
             } else {
@@ -418,7 +407,7 @@ class QuestionnaireCardView : View {
                 notApplicableDrawable.draw(canvas)
 
             }
-            Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
+            Log.d("acceptDrawable", "acceptDrawable.bounds :${acceptDrawable.bounds}")
         } else {
 
             if (cardStatus == CardStatus.ACCEPTED) {
@@ -457,15 +446,8 @@ class QuestionnaireCardView : View {
                     acceptDrawableBottom
             )
             acceptDrawable.alpha = acceptDrawableAlpha
-            //if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
-                //handle Issue: Vector drawable not shown in pre-Lollipop devices
-                // Here we convert the vector to bitmap and drawing it
-               // val bitmap = getBitmapFromVectorDrawable(context,R.drawable.ic_check);
-               // canvas?.drawBitmap(bitmap,null,acceptDrawable.bounds,null)
-                Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
-           // }else {
-                acceptDrawable.draw(canvas)
-           // }
+            Log.d("acceptDrawable", "acceptDrawable.bounds :${acceptDrawable.bounds}")
+            acceptDrawable.draw(canvas)
 
         }
 
