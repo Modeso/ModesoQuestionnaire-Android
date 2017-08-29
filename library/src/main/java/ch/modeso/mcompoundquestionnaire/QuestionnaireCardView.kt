@@ -24,6 +24,7 @@ import android.util.DisplayMetrics
 import android.opengl.ETC1.getHeight
 import android.opengl.ETC1.getWidth
 import android.graphics.Bitmap
+import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 
 
@@ -83,7 +84,7 @@ class QuestionnaireCardView : View {
             invalidate()
         }
 
-    var acceptDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_check)
+    var acceptDrawable: Drawable = VectorDrawableCompat.create(resources, R.drawable.ic_check,context.theme) as Drawable//.getDrawable(context, R.drawable.ic_check)
         set(value) {
             field = value
             invalidate()
@@ -92,13 +93,16 @@ class QuestionnaireCardView : View {
 
 
 
-    var cancelDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_close)
+    var cancelDrawable: Drawable = if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            VectorDrawableCompat.create(resources, R.drawable.ic_close,context.theme) as Drawable
+        else
+            ContextCompat.getDrawable(context, R.drawable.ic_close)
         set(value) {
             field = value
             invalidate()
         }
 
-    var notApplicableDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_not_applicable)
+    var notApplicableDrawable: Drawable = VectorDrawableCompat.create(resources, R.drawable.ic_not_applicable,context.theme) as Drawable//ContextCompat.getDrawable(context, R.drawable.ic_not_applicable)
         set(value) {
             field = value
             invalidate()
@@ -400,15 +404,15 @@ class QuestionnaireCardView : View {
                 )
                 acceptDrawable.alpha = acceptDrawableAlpha
                 //@TODO: Check the version of the device to solve the pre-lollipop  vector drawable issues
-                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+               // if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
                     //handle Issue: Vector drawable not shown in pre-Lollipop devices
                     // Here we convert the vector to bitmap and drawing it
-                    val bitmap = getBitmapFromVectorDrawable(context,R.drawable.ic_check);
-                    canvas?.drawBitmap(bitmap,null,acceptDrawable.bounds,null)
+                   // val bitmap = getBitmapFromVectorDrawable(context,R.drawable.ic_check);
+                    //canvas?.drawBitmap(bitmap,null,acceptDrawable.bounds,null)
                     Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
-                }else {
+                //}else {
                     acceptDrawable.draw(canvas)
-                }
+                //}
             } else {
                 notApplicableCirclePaint.color = notApplicableColor
                 notApplicableCircleRectF.set(notApplicableCenterX - notApplicableRadius
@@ -422,6 +426,7 @@ class QuestionnaireCardView : View {
                         (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
                 )
                 notApplicableDrawable.draw(canvas)
+
             }
             Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
         } else {
@@ -462,15 +467,15 @@ class QuestionnaireCardView : View {
                     acceptDrawableBottom
             )
             acceptDrawable.alpha = acceptDrawableAlpha
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            //if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
                 //handle Issue: Vector drawable not shown in pre-Lollipop devices
                 // Here we convert the vector to bitmap and drawing it
-                val bitmap = getBitmapFromVectorDrawable(context,R.drawable.ic_check);
-                canvas?.drawBitmap(bitmap,null,acceptDrawable.bounds,null)
+               // val bitmap = getBitmapFromVectorDrawable(context,R.drawable.ic_check);
+               // canvas?.drawBitmap(bitmap,null,acceptDrawable.bounds,null)
                 Log.d("acceptDrawable","acceptDrawable.bounds :${acceptDrawable.bounds}");
-            }else {
+           // }else {
                 acceptDrawable.draw(canvas)
-            }
+           // }
 
         }
 
