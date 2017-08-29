@@ -5,7 +5,7 @@
 </p>
 
 ModesoQuestionnaire-Android is an android questionnaire written mostly in Kotlin. 
-It's insperated by [Yaroslav Zubko](https://dribbble.com/Yar_Z)'s [design](https://dribbble.com/shots/2926913--4-Compound-Questionnaire).
+It's inspired by [Yaroslav Zubko](https://dribbble.com/Yar_Z)'s [design](https://dribbble.com/shots/2926913--4-Compound-Questionnaire).
 It enable creating questionnaire with a lot of features and ease of use
 
 <img src="https://raw.githubusercontent.com/Modeso/ModesoQuestionnaire-Android/master/1.gif">
