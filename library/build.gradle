@@ -58,7 +58,7 @@ task ktlintFormat(type: JavaExec) {
 task ktlintGenerateCheckstyleXML(type: Exec) {
     commandLine 'java', '-cp', configurations.ktlint.join(System.getProperty('path.separator')),
             'com.github.shyiko.ktlint.Main', '--reporter=checkstyle', 'src/**/*.kt'
-    standardOutput = new FileOutputStream(new File(buildDir, "ktlint-checkstyle-report.xml"))
+    //standardOutput = new FileOutputStream(new File(buildDir, "ktlint-checkstyle-report.xml"))
     ignoreExitValue = true
     doLast {
         standardOutput.close()

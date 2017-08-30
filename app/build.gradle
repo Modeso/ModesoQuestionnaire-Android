@@ -40,7 +40,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     ktlint 'com.github.shyiko:ktlint:0.9.0'
-    compile project(path: ':library')
+    //compile project(path: ':library')
+    compile 'com.github.Modeso:ModesoQuestionnaire-Android:1.0.0'
 }
 repositories {
     mavenCentral()
@@ -65,7 +66,7 @@ task ktlintFormat(type: JavaExec) {
 task ktlintGenerateCheckstyleXML(type: Exec) {
     commandLine 'java', '-cp', configurations.ktlint.join(System.getProperty('path.separator')),
             'com.github.shyiko.ktlint.Main', '--reporter=checkstyle', 'src/**/*.kt'
-    standardOutput = new FileOutputStream(new File(buildDir, "ktlint-checkstyle-report.xml"))
+    //standardOutput = new FileOutputStream(new File(buildDir, "ktlint-checkstyle-report.xml"))
     ignoreExitValue = true
     doLast {
         standardOutput.close()
