@@ -517,8 +517,9 @@ class QuestionnaireCardView : View {
                     if (isDroppedOnList(mPosX, mPosY)) {
                         if (parent is FrameLayout) {
                             if (parent.parent is FrameLayout) {
-                                if (parent.parent.parent is MCompoundQuestionnaire) {
-                                    (parent.parent.parent as MCompoundQuestionnaire).onItemUnDismiss(this)
+                                var viewParent = parent.parent.parent
+                                if (viewParent is MCompoundQuestionnaire) {
+                                    viewParent.onItemUnDismiss(this)
                                 }
                             }
                         }

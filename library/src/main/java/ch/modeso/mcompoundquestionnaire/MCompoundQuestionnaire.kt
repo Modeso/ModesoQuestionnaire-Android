@@ -475,14 +475,28 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 cardMovingHorizontal = false
             }
             val position = items.filter { it.status != QuestionnaireCardView.CardStatus.NOT_APPLICABLE }.indexOf(realItem)
-            if (tileManager.mCurSelectedPosition == position) {
+            Log.d("Test","tileManager.mCurSelectedPosition=${tileManager.mCurSelectedPosition} while position = ${position}")
+            if (tileManager.mCurSelectedPosition == position && !demoAdapter?.items?.contains(realItem)!!) {
                 demoAdapter?.items?.add(position, realItem)
                 isUnDismiss = false
                 cardInteractionCallBacks?.onItemNone(id)
                 demoAdapter?.notifyItemInserted(position)
             } else {
-                recyclerView?.smoothScrollToPosition(position)
-                val scrollListener = ScrolledListener(position, realItem, demoAdapter) {
+                if( demoAdapter?.items?.contains(realItem)!!){
+                    Log.d("Test","Item already added to the adapter...")
+                }else
+                    Log.d("Test","Item is not added to the adapter...")
+                // Check if tileManager.mCurSelectedPosition =  -1 that happens when all items are dismissed
+                var truePos:Int? = position
+                if( demoAdapter?.items?.size == 0 && !demoAdapter?.items?.contains(realItem)!!){
+                    truePos = demoAdapter?.items?.size
+                    demoAdapter?.items?.add(truePos!!, realItem)
+                    isUnDismiss = false
+                    cardInteractionCallBacks?.onItemNone(id)
+                    demoAdapter?.notifyDataSetChanged()//(truePos!!)
+                }
+                recyclerView?.smoothScrollToPosition(truePos!!)
+                val scrollListener = ScrolledListener(truePos!!, realItem, demoAdapter) {
                     isUnDismiss = false
                     cardInteractionCallBacks?.onItemNone(id)
                 }
