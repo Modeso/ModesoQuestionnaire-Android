@@ -26,7 +26,9 @@ import android.widget.TextView
  * Created by Hazem on 7/28/2017.
  */
 class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
-
+    companion object {
+        val TAG = MCompoundQuestionnaire.javaClass.simpleName
+    }
     var indicatorBackgroundColor: Int = ContextCompat.getColor(context, R.color.colorPrimaryDark)
         set(value) {
             field = value
@@ -425,7 +427,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
 
     fun onCardMoving(fraction: Float, cardY: Float, cardHeight: Int, pulling: Boolean) {
         textHeight = measuredHeight - bottomView - (textHeight * fraction)
-        Log.d("test", "textHeight: $textHeight, cardY+cardHeight: ${cardY + cardHeight}")
+        Log.d(TAG, "textHeight: $textHeight, cardY+cardHeight: ${cardY + cardHeight}")
         textVisible = dismissNo == 0
         cardMovingHorizontal = true
         textRotationY = (cardY + cardHeight / 2)
@@ -475,32 +477,30 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 cardMovingHorizontal = false
             }
             val position = items.filter { it.status != QuestionnaireCardView.CardStatus.NOT_APPLICABLE }.indexOf(realItem)
-            Log.d("Test","tileManager.mCurSelectedPosition=${tileManager.mCurSelectedPosition} while position = ${position}")
+            Log.d(TAG,"tileManager.mCurSelectedPosition=${tileManager.mCurSelectedPosition} while position = ${position}")
             if (tileManager.mCurSelectedPosition == position && !demoAdapter?.items?.contains(realItem)!!) {
                 demoAdapter?.items?.add(position, realItem)
                 isUnDismiss = false
                 cardInteractionCallBacks?.onItemNone(id)
                 demoAdapter?.notifyItemInserted(position)
+
             } else {
-                if( demoAdapter?.items?.contains(realItem)!!){
-                    Log.d("Test","Item already added to the adapter...")
-                }else
-                    Log.d("Test","Item is not added to the adapter...")
-                // Check if tileManager.mCurSelectedPosition =  -1 that happens when all items are dismissed
+                // Check if all items are dismissed
                 var truePos:Int? = position
-                if( demoAdapter?.items?.size == 0 && !demoAdapter?.items?.contains(realItem)!!){
-                    truePos = demoAdapter?.items?.size
-                    demoAdapter?.items?.add(truePos!!, realItem)
+                if( demoAdapter?.items?.size == 0){//all items are dismissed
+                    truePos = demoAdapter?.items?.size!!
+                   demoAdapter?.items?.add(truePos!!, realItem)
                     isUnDismiss = false
                     cardInteractionCallBacks?.onItemNone(id)
-                    demoAdapter?.notifyDataSetChanged()//(truePos!!)
+                    demoAdapter?.notifyDataSetChanged()
+                }else {
+                    recyclerView?.smoothScrollToPosition(truePos!!)
+                    val scrollListener = ScrolledListener(truePos!!, realItem, demoAdapter) {
+                        isUnDismiss = false
+                        cardInteractionCallBacks?.onItemNone(id)
+                    }
+                    recyclerView?.addOnScrollListener(scrollListener)
                 }
-                recyclerView?.smoothScrollToPosition(truePos!!)
-                val scrollListener = ScrolledListener(truePos!!, realItem, demoAdapter) {
-                    isUnDismiss = false
-                    cardInteractionCallBacks?.onItemNone(id)
-                }
-                recyclerView?.addOnScrollListener(scrollListener)
             }
             itemTouchHelper.dismissedNo--
             redrawDismissedChild()
