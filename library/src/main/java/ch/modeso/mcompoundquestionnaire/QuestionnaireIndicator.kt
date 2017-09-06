@@ -87,8 +87,8 @@ class QuestionnaireIndicator : View {
     fun colorListAddAll(collection: Collection<Int>) {
         colorList.addAll(collection)
         itemSize = measuredWidth.toFloat() / colorList.size
-        leftBound = (itemSize * currentPosition + itemSize / 2).toInt()
-        rightBound = indicator.intrinsicWidth + (itemSize * currentPosition + itemSize / 2).toInt()
+        leftBound = (itemSize * currentPosition /*+ itemSize / 2*/).toInt()
+        rightBound = indicator.intrinsicWidth + leftBound
         invalidate()
     }
 
@@ -148,8 +148,8 @@ class QuestionnaireIndicator : View {
             upperLowerHeight = (measuredHeight.toFloat() - bgHeight) / 2
         }
         itemSize = measuredWidth.toFloat() / colorList.size
-        leftBound = (itemSize * currentPosition + itemSize / 2).toInt()
-        rightBound = indicator.intrinsicWidth + (itemSize * currentPosition + itemSize / 2).toInt()
+        leftBound = (itemSize * currentPosition /*+ itemSize / 2*/).toInt()
+        rightBound = indicator.intrinsicWidth + leftBound
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -195,7 +195,7 @@ class QuestionnaireIndicator : View {
     }
 
     private fun animateLeftIndicator(): Animator {
-        val newValue = (itemSize * currentPosition + itemSize / 2).toInt()
+        val newValue = (itemSize * currentPosition/* + itemSize / 2*/).toInt()
 
         val animator = ValueAnimator.ofInt(leftBound, newValue)
         animator.interpolator = AccelerateDecelerateInterpolator()
@@ -205,7 +205,7 @@ class QuestionnaireIndicator : View {
     }
 
     private fun animateRightIndicator(): Animator {
-        val newValue = indicator.intrinsicWidth + (itemSize * currentPosition + itemSize / 2).toInt()
+        val newValue = indicator.intrinsicWidth + (itemSize * currentPosition /*+ itemSize / 2*/).toInt()
         val animator = ValueAnimator.ofInt(rightBound, newValue)
         animator.interpolator = AccelerateDecelerateInterpolator()
         animator.duration = duration.toLong()
