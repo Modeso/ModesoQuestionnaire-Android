@@ -27,6 +27,9 @@ android {
 configurations {
     ktlint
 }
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -44,7 +47,7 @@ dependencies {
     ktlint 'com.github.shyiko:ktlint:0.9.0'
     //our library dependency
     //compile project(path: ':library')
-    compile 'com.github.Modeso:ModesoQuestionnaire-Android:development-SNAPSHOT'
+    compile 'com.github.Modeso:ModesoQuestionnaire-Android:1.1.0'
 }
 repositories {
     mavenCentral()
