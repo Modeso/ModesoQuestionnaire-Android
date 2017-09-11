@@ -271,7 +271,7 @@ class QuestionnaireCardView : View {
         textHeight = measuredHeight - 3 * padding - 2 * buttonsRadius
         val x0: Float = 2 * padding + 3 * buttonsRadius
         val y0: Float = textHeight + 2 * padding + buttonsRadius
-        maxRadius = Math.sqrt(Math.pow((x + measuredWidth - x0).toDouble(), 2.0) + Math.pow((y - y0).toDouble(), 2.0)).toFloat() + 5 * density
+        maxRadius = Math.sqrt(Math.pow((x + measuredWidth - x0).toDouble(), 2.0) + Math.pow((y - y0-buttonsRadius).toDouble(), 2.0)).toFloat() + 5 * density
 
         cancelLeft = padding
         cancelTop = textHeight + 2 * padding
