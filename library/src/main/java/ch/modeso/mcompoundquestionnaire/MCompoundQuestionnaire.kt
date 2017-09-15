@@ -310,6 +310,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val adapterIndex = demoAdapter!!.items.indexOf(adapterItem)
                 if (adapterIndex > -1) {
                     demoAdapter!!.items[adapterIndex].status = QuestionnaireCardView.CardStatus.ACCEPTED
+                    //Move to the next Item smoothly
+                    postDelayed({recyclerView?.smoothScrollToPosition(adapterIndex+1)},300)
                 }
             }
         }
@@ -334,6 +336,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val adapterIndex = demoAdapter!!.items.indexOf(adapterItem)
                 if (adapterIndex > -1) {
                     demoAdapter!!.items[adapterIndex].status = QuestionnaireCardView.CardStatus.CANCELED
+                    //Move to the next Item smoothly
+                    postDelayed({recyclerView?.smoothScrollToPosition(adapterIndex+1)},300)
                 }
             }
         }

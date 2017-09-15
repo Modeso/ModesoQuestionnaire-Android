@@ -26,6 +26,9 @@ import android.support.v4.graphics.drawable.DrawableCompat
  * Created by Hazem on 7/27/2017
  */
 class QuestionnaireCardView : View {
+    companion object {
+        val TAG:String = QuestionnaireCardView.javaClass.simpleName
+    }
 
     enum class CardStatus {
         NONE,
@@ -560,8 +563,10 @@ class QuestionnaireCardView : View {
                     lastY = event.y
                 } else if (event.actionMasked == MotionEvent.ACTION_UP) {
                     if (inCancelCircle(event.x, event.y)) {
+                        Log.d(TAG,"Cancel Btn Clicked....")
                         animateCancelButton((animationDuration - (animationDuration / 3)).toLong())
                     } else if (inAcceptCircle(event.x, event.y)) {
+                        Log.d(TAG,"Accept Btn Clicked....")
                         animateAcceptButton((animationDuration - (animationDuration / 3)).toLong())
                     }
                     lastX = 0f
