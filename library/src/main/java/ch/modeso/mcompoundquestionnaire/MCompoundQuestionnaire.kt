@@ -449,6 +449,10 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, notApplicableColor)
+                    val lastItem =  if (demoAdapter?.items?.isEmpty()!! ) null else demoAdapter?.items?.last()
+                    if(realIndex>0 && lastItem != null && lastItem == realItem )
+                        if(demoAdapter?.itemCount!! > 1)
+                            recyclerView?.smoothScrollToPosition(demoAdapter?.itemCount!!-2)//realIndex - 1)
                 }
                 realItem.status = QuestionnaireCardView.CardStatus.NOT_APPLICABLE
             }
@@ -504,7 +508,6 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
             itemTouchHelper.dismissedNo--
             redrawDismissedChild()
-
         }
     }
 
@@ -553,6 +556,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 done()
                 demoAdapter?.notifyItemInserted(position)
                 recyclerView?.removeOnScrollListener(this)
+                demoAdapter?.notifyDataSetChanged()
             }
         }
     }
