@@ -275,6 +275,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                         val realIndex = items.indexOf(realItem)
                         if (realIndex > -1) {
                             questionnaireIndicator?.currentPosition = realIndex
+                            questionnaireIndicator?.drawIndicator = !((realIndex == items.size-1) &&
+                                    (realItem.status != QuestionnaireCardView.CardStatus.NONE))
+
                         }
                     }
                 }
@@ -302,6 +305,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, acceptColor)
+                    if(realIndex == items.size-1)
+                        questionnaireIndicator?.drawIndicator = false
                     items[realIndex].status = QuestionnaireCardView.CardStatus.ACCEPTED
                 }
             }
@@ -328,6 +333,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, cancelColor)
+                    if(realIndex == items.size-1)
+                        questionnaireIndicator?.drawIndicator = false
                     items[realIndex].status = QuestionnaireCardView.CardStatus.CANCELED
                 }
             }
@@ -354,6 +361,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, indicatorBackgroundColor)
+                    if(realIndex == items.size-1)
+                        questionnaireIndicator?.drawIndicator = true
                     items[realIndex].status = QuestionnaireCardView.CardStatus.NONE
                 }
             }
@@ -366,6 +375,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             }
         }
         cardInteractionCallBacks?.onItemNone(itemId)
+
     }
 
     fun updateList(itemsList: MutableList<BaseModel>) {
@@ -453,6 +463,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, notApplicableColor)
+                    if(realIndex == items.size-1)
+                    questionnaireIndicator?.drawIndicator = false
                     val lastItem =  if (demoAdapter?.items?.isEmpty()!! ) null else demoAdapter?.items?.last()
                     if(realIndex>0 && lastItem != null && lastItem == realItem )
                         if(demoAdapter?.itemCount!! > 1)
@@ -466,6 +478,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         if (checkQuestionnaire()) {
             cardInteractionCallBacks?.onQuestionnaireFinish()
         }
+
     }
 
     fun onItemUnDismiss(view: View) {

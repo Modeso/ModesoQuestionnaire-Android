@@ -34,6 +34,13 @@ class QuestionnaireIndicator : View {
             invalidate()
         }
 
+    var drawIndicator: Boolean  = true
+        get() = field
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     var lowerColor: Int = transparentColor
         set(value) {
             field = value
@@ -149,7 +156,7 @@ class QuestionnaireIndicator : View {
         }
         itemSize = measuredWidth.toFloat() / colorList.size
         leftBound = (itemSize * currentPosition /*+ itemSize / 2*/).toInt()
-        rightBound = indicator.intrinsicWidth + leftBound
+        rightBound = (0 /*indicator.intrinsicWidth */+ leftBound).toInt()
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -172,7 +179,8 @@ class QuestionnaireIndicator : View {
 
         if (colorList.isEmpty()) {
             indicator.setBounds(0, 0, indicator.intrinsicWidth, measuredHeight)
-            indicator.draw(canvas)
+            if(drawIndicator)
+                indicator.draw(canvas)
         } else {
             for (i in 0..colorList.size - 1) {
                 itemPaint.color = colorList[i]
@@ -180,8 +188,9 @@ class QuestionnaireIndicator : View {
                 canvas?.drawRect(itemRectF, itemPaint)
             }
 
-            indicator.setBounds(leftBound, 0, rightBound, measuredHeight)
-            indicator.draw(canvas)
+            indicator.setBounds(leftBound, 0, rightBound+itemSize.toInt()-indicator.intrinsicWidth, (upperLowerHeight+bgHeight).toInt()/*measuredHeight*/)
+            if(drawIndicator)
+                indicator.draw(canvas)
         }
     }
 
