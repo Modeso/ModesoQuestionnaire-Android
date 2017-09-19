@@ -516,11 +516,10 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                     demoAdapter?.notifyDataSetChanged()
                 }else {
                     recyclerView?.smoothScrollToPosition(truePos!!)
-                    val scrollListener = ScrolledListener(truePos!!, realItem, demoAdapter) {
-                        isUnDismiss = false
-                        cardInteractionCallBacks?.onItemNone(id)
-                    }
-                    recyclerView?.addOnScrollListener(scrollListener)
+                    demoAdapter?.items?.add(position, realItem)
+                    isUnDismiss = false
+                    cardInteractionCallBacks?.onItemNone(id)
+                    demoAdapter?.notifyItemInserted(position)
                 }
             }
             itemTouchHelper.dismissedNo--
@@ -557,24 +556,6 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
             animatorCompat.start()
-        }
-    }
-
-    private class ScrolledListener(val position: Int, val realItem: BaseModel, val demoAdapter: DemoAdapter?, val done: () -> Unit) : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-
-        }
-
-        override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
-            super.onScrollStateChanged(recyclerView, newState)
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                demoAdapter?.items?.add(position, realItem)
-                done()
-                demoAdapter?.notifyItemInserted(position)
-                recyclerView?.removeOnScrollListener(this)
-                demoAdapter?.notifyDataSetChanged()
-            }
         }
     }
 
