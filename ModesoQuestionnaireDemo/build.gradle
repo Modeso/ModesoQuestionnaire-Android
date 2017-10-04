@@ -1,0 +1,89 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "26.0.0"
+
+    defaultConfig {
+        applicationId "ch.modeso.mcompoundquestionnaireexample"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        //important cause the library uses vector drawables
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+configurations {
+    ktlint
+}
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'com.android.support:cardview-v7:25.3.1'
+    testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    //optional ktlint dependency
+    ktlint 'com.github.shyiko:ktlint:0.9.0'
+    //our library dependency
+    compile project(path: ':ModesoQuestionnaire')
+    //compile 'com.github.Modeso:ModesoQuestionnaire-Android:1.3.0'
+}
+repositories {
+    maven {
+        url "https://jitpack.io"
+    }
+
+}
+///////////////////////////////////////////////////////////////////////
+//          optional ktlint tasks ,you can remove if you don't want
+//////////////////////////////////////////////////////////////////////
+//finds all kotlin code style issues
+task ktlint(type: JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "src/**/*.kt"
+    // prepend "--reporter=plain?group_by_file" arg to change the reporter
+}
+
+check.dependsOn ktlint
+//Format all kotlin source code in the current directory
+task ktlintFormat(type: JavaExec) {
+    main = "com.github.shyiko.ktlint.Main"
+    classpath = configurations.ktlint
+    args "-F", "src/**/*.kt"
+}
+//Generates a named report file in xml on the current working directory containing all found issues
+task ktlintGenerateCheckstyleXML(type: Exec) {
+    commandLine 'java', '-cp', configurations.ktlint.join(System.getProperty('path.separator')),
+            'com.github.shyiko.ktlint.Main', '--reporter=checkstyle', 'src/**/*.kt'
+    //uncomment to generate a report with the specified name in the build directory
+    //standardOutput = new FileOutputStream(new File(buildDir, "ktlint-checkstyle-report.xml"))
+    ignoreExitValue = true
+    doLast {
+        standardOutput.close()
+        if (execResult.exitValue != 0) {
+            throw new GradleException("ktlint finished with non-zero exit value ${execResult.exitValue}")
+        }
+    }
+}
