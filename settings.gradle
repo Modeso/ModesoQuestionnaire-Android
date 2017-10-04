@@ -1,1 +1,1 @@
-include ':library', ':app'
+include ':ModesoQuestionnaire', ':ModesoQuestionnaireDemo'
