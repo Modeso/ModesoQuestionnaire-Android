@@ -5,15 +5,14 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.RectF
-import android.graphics.Typeface
+/* ktlint-disable no-wildcard-imports */
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.MotionEvent.INVALID_POINTER_ID
@@ -21,12 +20,15 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
-
+import android.support.v4.graphics.drawable.DrawableCompat
 
 /**
  * Created by Hazem on 7/27/2017
  */
 class QuestionnaireCardView : View {
+    companion object {
+        val TAG:String = QuestionnaireCardView.javaClass.simpleName
+    }
 
     enum class CardStatus {
         NONE,
@@ -42,6 +44,12 @@ class QuestionnaireCardView : View {
         }
 
     var textColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var textSecondColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
         set(value) {
             field = value
             invalidate()
@@ -71,19 +79,19 @@ class QuestionnaireCardView : View {
             invalidate()
         }
 
-    var acceptDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_check)
+    var acceptDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_check)//.getDrawable(context, R.drawable.ic_check)
         set(value) {
             field = value
             invalidate()
         }
 
-    var cancelDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_close)
+    var cancelDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_close)
         set(value) {
             field = value
             invalidate()
         }
 
-    var notApplicableDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_not_applicable)
+    var notApplicableDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_not_applicable)
         set(value) {
             field = value
             invalidate()
@@ -147,7 +155,61 @@ class QuestionnaireCardView : View {
             field = value
             invalidate()
         }
-    val animationDuration: Long = 1000
+
+    var cancelDrawableLeft: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var cancelDrawableTop: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var cancelDrawableRight: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var cancelDrawableBottom: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var acceptDrawableLeft: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var acceptDrawableTop: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var acceptDrawableRight: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var acceptDrawableBottom: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var cancelDrawableAlpha: Int = 255
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var acceptDrawableAlpha: Int = 255
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var animationDuration: Float = 1000f
     var maxRadius: Float = 0f
 
     var animatorSet: AnimatorSet = AnimatorSet()
@@ -170,6 +232,9 @@ class QuestionnaireCardView : View {
     var cardMoving = false
         set(value) {
             field = value
+            if (parent != null && parent.parent != null && parent.parent.parent != null && parent.parent.parent is MCompoundQuestionnaire) {
+                (parent.parent.parent as MCompoundQuestionnaire).cardMoving = value
+            }
             invalidate()
         }
     private var notApplicableRadius = buttonsRadius + maxRadius
@@ -209,7 +274,7 @@ class QuestionnaireCardView : View {
         textHeight = measuredHeight - 3 * padding - 2 * buttonsRadius
         val x0: Float = 2 * padding + 3 * buttonsRadius
         val y0: Float = textHeight + 2 * padding + buttonsRadius
-        maxRadius = Math.sqrt(Math.pow((x + measuredWidth - x0).toDouble(), 2.0) + Math.pow((y - y0).toDouble(), 2.0)).toFloat() + 5 * density
+        maxRadius = Math.sqrt(Math.pow((x + measuredWidth - x0).toDouble(), 2.0) + Math.pow((y - y0-buttonsRadius).toDouble(), 2.0)).toFloat() + 5 * density
 
         cancelLeft = padding
         cancelTop = textHeight + 2 * padding
@@ -220,7 +285,16 @@ class QuestionnaireCardView : View {
         acceptRight = 2 * padding + 4 * buttonsRadius
         acceptBottom = textHeight + 2 * padding + 2 * buttonsRadius
 
-        notApplicableCenterY = textHeight + 2 * padding - buttonsRadius
+        cancelDrawableLeft = (padding + 2 * buttonsRadius / 3).toInt()
+        cancelDrawableTop = (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt()
+        cancelDrawableRight = (padding + 4 * buttonsRadius / 3).toInt()
+        cancelDrawableBottom = (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+        acceptDrawableLeft = (2 * padding + 2 * buttonsRadius + 2 * buttonsRadius / 3).toInt()
+        acceptDrawableTop = (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt()
+        acceptDrawableRight = (2 * padding + 2 * buttonsRadius + 4 * buttonsRadius / 3).toInt()
+        acceptDrawableBottom = (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+
+        notApplicableCenterY = textHeight + 2 * padding
         notApplicableCenterX = measuredWidth / 2f
         if (cardStatus == CardStatus.ACCEPTED) {
             cancelLeft += buttonsRadius
@@ -254,9 +328,16 @@ class QuestionnaireCardView : View {
         acceptBottom = textHeight + 2 * padding + 2 * buttonsRadius
     }
 
-    fun onCardMovement(fraction: Float) {
+    fun onCardMovement(fraction: Float, pulling: Boolean) {
+        if (parent != null && parent.parent != null && parent.parent.parent != null && parent.parent.parent is MCompoundQuestionnaire) {
+            (parent.parent.parent as MCompoundQuestionnaire).onCardMoving(fraction, y, measuredHeight, pulling)
+        }
         cardMoving = fraction > 0f && !movingHorizontal
-        notApplicableRadius = buttonsRadius + maxRadius * fraction
+        if (fraction > 0.07f) {
+            notApplicableRadius = buttonsRadius + maxRadius * (fraction - 0.07f)
+        } else {
+            notApplicableRadius = buttonsRadius
+        }
         lastFraction = fraction
         invalidate()
     }
@@ -266,31 +347,70 @@ class QuestionnaireCardView : View {
         background = bgDrawable
 
         if (cardMoving) {
-            notApplicableCirclePaint.color = notApplicableColor
-            notApplicableCircleRectF.set(notApplicableCenterX - notApplicableRadius
-                    , notApplicableCenterY - notApplicableRadius, notApplicableCenterX + notApplicableRadius
-                    , notApplicableCenterY + notApplicableRadius)
-            canvas?.drawOval(notApplicableCircleRectF, notApplicableCirclePaint)
-            notApplicableDrawable.bounds.set(
-                    (notApplicableCenterX - 2 * buttonsRadius / 3).toInt(),
-                    (notApplicableCenterY - 2 * buttonsRadius / 3).toInt(),
-                    (notApplicableCenterX + 2 * buttonsRadius / 3).toInt(),
-                    (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
-            )
-            notApplicableDrawable.draw(canvas)
-            textView.isDrawingCacheEnabled = true
-            textView.setTextColor(notApplicableColor)
-            textView.textSize = textSize + 3 * lastFraction
-            textView.gravity = Gravity.CENTER_HORIZONTAL
-            textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY)
-                    , View.MeasureSpec.makeMeasureSpec(buttonsRadius.toInt(), View.MeasureSpec.AT_MOST))
-            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
-            textView.text = context.getString(R.string.not_applicable)
-            textView.typeface = Typeface.DEFAULT_BOLD
-            if (textView.drawingCache != null) {
-                canvas?.drawBitmap(textView.drawingCache, padding, (notApplicableCenterY + 2 * buttonsRadius), textPaint)
+            if (lastFraction <= 0.07f) {
+                val buttonFraction = lastFraction / 0.07f
+                val newCancelLeft = cancelLeft + (notApplicableCenterX - (cancelLeft + buttonsRadius)) * buttonFraction
+                val newCancelTop = cancelTop + (notApplicableCenterY - (cancelTop + buttonsRadius)) * buttonFraction
+                val newCancelRight = cancelRight + (notApplicableCenterX - (cancelRight - buttonsRadius)) * buttonFraction
+                val newCancelBottom = cancelBottom + (notApplicableCenterY - (cancelBottom - buttonsRadius)) * buttonFraction
+                val newAcceptLeft = acceptLeft + (notApplicableCenterX - (acceptLeft + buttonsRadius)) * buttonFraction
+                val newAcceptTop = acceptTop + (notApplicableCenterY - (acceptTop + buttonsRadius)) * buttonFraction
+                val newAcceptRight = acceptRight + (notApplicableCenterX - (acceptRight - buttonsRadius)) * buttonFraction
+                val newAcceptBottom = acceptBottom + (notApplicableCenterY - (acceptBottom - buttonsRadius)) * buttonFraction
+                val newCancelDrawableLeft = (cancelDrawableLeft + (notApplicableCenterX - (cancelDrawableLeft + cancelDrawableRight) / 2) * buttonFraction).toInt()
+                val newCancelDrawableTop = (cancelDrawableTop + (notApplicableCenterY - (cancelDrawableTop + cancelDrawableBottom) / 2) * buttonFraction).toInt()
+                val newCancelDrawableRight = (cancelDrawableRight + (notApplicableCenterX - (cancelDrawableLeft + cancelDrawableRight) / 2) * buttonFraction).toInt()
+                val newCancelDrawableBottom = (cancelDrawableBottom + (notApplicableCenterY - (cancelDrawableTop + cancelDrawableBottom) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableLeft = (acceptDrawableLeft + (notApplicableCenterX - (acceptDrawableLeft + acceptDrawableRight) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableTop = (acceptDrawableTop + (notApplicableCenterY - (cancelDrawableTop + acceptDrawableBottom) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableRight = (acceptDrawableRight + (notApplicableCenterX - (acceptDrawableLeft + acceptDrawableRight) / 2) * buttonFraction).toInt()
+                val newAcceptDrawableBottom = (acceptDrawableBottom + (notApplicableCenterY - (cancelDrawableTop + acceptDrawableBottom) / 2) * buttonFraction).toInt()
+
+                val alpha = (255 * (1 - buttonFraction)).toInt()
+
+                cancelCirclePaint.color = Color.argb(alpha, Color.red(cancelColor), Color.green(cancelColor), Color.blue(cancelColor))
+                cancelCircleRectF.set(newCancelLeft, newCancelTop, newCancelRight, newCancelBottom)
+                canvas?.drawOval(cancelCircleRectF, cancelCirclePaint)
+
+                acceptCirclePaint.color = Color.argb(alpha, Color.red(acceptColor), Color.green(acceptColor), Color.blue(acceptColor))
+                acceptCircleRectF.set(newAcceptLeft, newAcceptTop, newAcceptRight, newAcceptBottom)
+                canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
+
+                cancelDrawable.bounds?.set(
+                        newCancelDrawableLeft,
+                        newCancelDrawableTop,
+                        newCancelDrawableRight,
+                        newCancelDrawableBottom
+                )
+                cancelDrawable.alpha = cancelDrawableAlpha
+                cancelDrawable.draw(canvas)
+
+                acceptDrawable.bounds?.set(
+                        newAcceptDrawableLeft,
+                        newAcceptDrawableTop,
+                        newAcceptDrawableRight,
+                        newAcceptDrawableBottom
+                )
+                acceptDrawable.alpha = acceptDrawableAlpha
+                Log.d("acceptDrawable", "acceptDrawable.bounds :${acceptDrawable.bounds}")
+                acceptDrawable.draw(canvas)
+
+            } else {
+                notApplicableCirclePaint.color = notApplicableColor
+                notApplicableCircleRectF.set(notApplicableCenterX - notApplicableRadius
+                        , notApplicableCenterY - notApplicableRadius, notApplicableCenterX + notApplicableRadius
+                        , notApplicableCenterY + notApplicableRadius)
+                canvas?.drawOval(notApplicableCircleRectF, notApplicableCirclePaint)
+                notApplicableDrawable.bounds.set(
+                        (notApplicableCenterX - 2 * buttonsRadius / 3).toInt(),
+                        (notApplicableCenterY - 2 * buttonsRadius / 3).toInt(),
+                        (notApplicableCenterX + 2 * buttonsRadius / 3).toInt(),
+                        (notApplicableCenterY + 2 * buttonsRadius / 3).toInt()
+                )
+                notApplicableDrawable.draw(canvas)
+
             }
-            textView.isDrawingCacheEnabled = false
+            Log.d("acceptDrawable", "acceptDrawable.bounds :${acceptDrawable.bounds}")
         } else {
 
             if (cardStatus == CardStatus.ACCEPTED) {
@@ -312,29 +432,36 @@ class QuestionnaireCardView : View {
                 canvas?.drawOval(acceptCircleRectF, acceptCirclePaint)
             }
 
-
             //buttons icon
             cancelDrawable.bounds?.set(
-                    (padding + 2 * buttonsRadius / 3).toInt(),
-                    (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt(),
-                    (padding + 4 * buttonsRadius / 3).toInt(),
-                    (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+                    cancelDrawableLeft,
+                    cancelDrawableTop,
+                    cancelDrawableRight,
+                    cancelDrawableBottom
             )
+            cancelDrawable.alpha = cancelDrawableAlpha
             cancelDrawable.draw(canvas)
 
             acceptDrawable.bounds?.set(
-                    (2 * padding + 2 * buttonsRadius + 2 * buttonsRadius / 3).toInt(),
-                    (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt(),
-                    (2 * padding + 2 * buttonsRadius + 4 * buttonsRadius / 3).toInt(),
-                    (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+                    acceptDrawableLeft,
+                    acceptDrawableTop,
+                    acceptDrawableRight,
+                    acceptDrawableBottom
             )
+            acceptDrawable.alpha = acceptDrawableAlpha
+            Log.d("acceptDrawable", "acceptDrawable.bounds :${acceptDrawable.bounds}")
             acceptDrawable.draw(canvas)
+
         }
 
         //text
         if (question != null) {
             textView.isDrawingCacheEnabled = true
-            textView.setTextColor(textColor)
+            if (cardStatus == CardStatus.NONE) {
+                textView.setTextColor(textColor)
+            } else {
+                textView.setTextColor(textSecondColor)
+            }
             textView.textSize = textSize
             textView.gravity = Gravity.START
             textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY),
@@ -376,7 +503,7 @@ class QuestionnaireCardView : View {
                     mPosY += dy
                     this.x = mPosX
                     this.y = mPosY
-                    onCardMovement((mPosY - originalY) / initialY)
+                    onCardMovement((mPosY - originalY) / initialY, true)
                     cardMoving = true
                     this.rotation = rotationAngle * (mPosY - originalY) / initialY
                     alpha = 0.5F
@@ -393,8 +520,9 @@ class QuestionnaireCardView : View {
                     if (isDroppedOnList(mPosX, mPosY)) {
                         if (parent is FrameLayout) {
                             if (parent.parent is FrameLayout) {
-                                if (parent.parent.parent is MCompoundQuestionnaire) {
-                                    (parent.parent.parent as MCompoundQuestionnaire).onItemUnDismiss(this)
+                                var viewParent = parent.parent.parent
+                                if (viewParent is MCompoundQuestionnaire) {
+                                    viewParent.onItemUnDismiss(this)
                                 }
                             }
                         }
@@ -435,9 +563,11 @@ class QuestionnaireCardView : View {
                     lastY = event.y
                 } else if (event.actionMasked == MotionEvent.ACTION_UP) {
                     if (inCancelCircle(event.x, event.y)) {
-                        animateCancelButton(animationDuration - (animationDuration / 3))
+                        Log.d(TAG,"Cancel Btn Clicked....")
+                        animateCancelButton((animationDuration - (animationDuration / 3)).toLong())
                     } else if (inAcceptCircle(event.x, event.y)) {
-                        animateAcceptButton(animationDuration - (animationDuration / 3))
+                        Log.d(TAG,"Accept Btn Clicked....")
+                        animateAcceptButton((animationDuration - (animationDuration / 3)).toLong())
                     }
                     lastX = 0f
                     lastY = 0f
@@ -480,41 +610,71 @@ class QuestionnaireCardView : View {
         animatorSet = AnimatorSet()
         if (duration == 0L) {
             animatorSet.playTogether(
-                    cancelLeftAnimation(true, false, duration),
-                    cancelTopAnimation(true, false, duration),
-                    cancelRightAnimation(true, false, duration),
-                    cancelBottomAnimation(true, false, duration),
-                    acceptLeftAnimation(false, false, duration),
-                    acceptTopAnimation(false, false, duration),
-                    acceptRightAnimation(false, false, duration),
-                    acceptBottomAnimation(false, false, duration)
+                    cancelLeftAnimation(true, false, false, duration),
+                    cancelTopAnimation(true, false, false, duration),
+                    cancelRightAnimation(true, false, false, duration),
+                    cancelBottomAnimation(true, false, false, duration),
+                    acceptLeftAnimation(false, false, false, duration),
+                    acceptTopAnimation(false, false, false, duration),
+                    acceptRightAnimation(false, false, false, duration),
+                    acceptBottomAnimation(false, false, false, duration),
+                    cancelDrawableLeftAnimation(false, duration),
+                    cancelDrawableTopAnimation(false, duration),
+                    cancelDrawableRightAnimation(false, duration),
+                    cancelDrawableBottomAnimation(false, duration),
+                    acceptDrawableLeftAnimation(false, duration),
+                    acceptDrawableTopAnimation(false, duration),
+                    acceptDrawableRightAnimation(false, duration),
+                    acceptDrawableBottomAnimation(false, duration),
+                    acceptDrawableAlphaAnimation(false, duration),
+                    cancelDrawableAlphaAnimation(false, duration)
             )
             animatorSet.start()
         } else if (cardStatus == CardStatus.ACCEPTED) {
             animatorSet.playTogether(
-                    cancelLeftAnimation(true, true, duration),
-                    cancelTopAnimation(true, true, duration),
-                    cancelRightAnimation(true, true, duration),
-                    cancelBottomAnimation(true, true, duration),
-                    acceptLeftAnimation(false, true, duration),
-                    acceptTopAnimation(false, true, duration),
-                    acceptRightAnimation(false, true, duration),
-                    acceptBottomAnimation(false, true, duration)
+                    cancelLeftAnimation(true, true, false, duration),
+                    cancelTopAnimation(true, true, false, duration),
+                    cancelRightAnimation(true, true, false, duration),
+                    cancelBottomAnimation(true, true, false, duration),
+                    acceptLeftAnimation(false, true, false, duration),
+                    acceptTopAnimation(false, true, false, duration),
+                    acceptRightAnimation(false, true, false, duration),
+                    acceptBottomAnimation(false, true, false, duration),
+                    cancelDrawableLeftAnimation(true, duration),
+                    cancelDrawableTopAnimation(true, duration),
+                    cancelDrawableRightAnimation(true, duration),
+                    cancelDrawableBottomAnimation(true, duration),
+                    acceptDrawableLeftAnimation(true, duration),
+                    acceptDrawableTopAnimation(true, duration),
+                    acceptDrawableRightAnimation(true, duration),
+                    acceptDrawableBottomAnimation(true, duration),
+                    acceptDrawableAlphaAnimation(true, duration),
+                    cancelDrawableAlphaAnimation(true, duration)
             )
             cardStatus = CardStatus.NONE
             animatorSet.start()
-            cardInteractionCallbacks?.itemNone(tag as String)
+            cardInteractionCallbacks?.onItemNone(tag as String)
             return
         } else if (cardStatus == CardStatus.CANCELED) {
             animatorSet.playTogether(
-                    cancelLeftAnimation(false, true, duration),
-                    cancelTopAnimation(false, true, duration),
-                    cancelRightAnimation(false, true, duration),
-                    cancelBottomAnimation(false, true, duration),
-                    acceptLeftAnimation(true, true, duration),
-                    acceptTopAnimation(true, true, duration),
-                    acceptRightAnimation(true, true, duration),
-                    acceptBottomAnimation(true, true, duration)
+                    cancelLeftAnimation(false, true, true, duration),
+                    cancelTopAnimation(false, true, true, duration),
+                    cancelRightAnimation(false, true, true, duration),
+                    cancelBottomAnimation(false, true, true, duration),
+                    acceptLeftAnimation(true, true, true, duration),
+                    acceptTopAnimation(true, true, true, duration),
+                    acceptRightAnimation(true, true, true, duration),
+                    acceptBottomAnimation(true, true, true, duration),
+                    cancelDrawableLeftAnimation(true, duration),
+                    cancelDrawableTopAnimation(true, duration),
+                    cancelDrawableRightAnimation(true, duration),
+                    cancelDrawableBottomAnimation(true, duration),
+                    acceptDrawableLeftAnimation(true, duration),
+                    acceptDrawableTopAnimation(true, duration),
+                    acceptDrawableRightAnimation(true, duration),
+                    acceptDrawableBottomAnimation(true, duration),
+                    acceptDrawableAlphaAnimation(true, duration),
+                    cancelDrawableAlphaAnimation(true, duration)
             )
             animatorSet.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {
@@ -529,36 +689,56 @@ class QuestionnaireCardView : View {
                 override fun onAnimationEnd(animation: Animator?) {
                     animatorSet = AnimatorSet()
                     animatorSet.playTogether(
-                            cancelLeftAnimation(true, false, duration),
-                            cancelTopAnimation(true, false, duration),
-                            cancelRightAnimation(true, false, duration),
-                            cancelBottomAnimation(true, false, duration),
-                            acceptLeftAnimation(false, false, duration),
-                            acceptTopAnimation(false, false, duration),
-                            acceptRightAnimation(false, false, duration),
-                            acceptBottomAnimation(false, false, duration)
+                            cancelLeftAnimation(true, false, true, duration),
+                            cancelTopAnimation(true, false, true, duration),
+                            cancelRightAnimation(true, false, true, duration),
+                            cancelBottomAnimation(true, false, true, duration),
+                            acceptLeftAnimation(false, false, false, duration),
+                            acceptTopAnimation(false, false, false, duration),
+                            acceptRightAnimation(false, false, false, duration),
+                            acceptBottomAnimation(false, false, false, duration),
+                            cancelDrawableLeftAnimation(true, duration),
+                            cancelDrawableTopAnimation(true, duration),
+                            cancelDrawableRightAnimation(true, duration),
+                            cancelDrawableBottomAnimation(true, duration),
+                            acceptDrawableLeftAnimation(false, duration),
+                            acceptDrawableTopAnimation(false, duration),
+                            acceptDrawableRightAnimation(false, duration),
+                            acceptDrawableBottomAnimation(false, duration),
+                            acceptDrawableAlphaAnimation(false, duration),
+                            cancelDrawableAlphaAnimation(true, duration)
                     )
                     cardStatus = CardStatus.ACCEPTED
                     animatorSet.start()
-                    cardInteractionCallbacks?.itemAcceptClick(tag as String)
+                    cardInteractionCallbacks?.onItemAcceptClick(tag as String)
                 }
 
             })
             animatorSet.start()
         } else {
             animatorSet.playTogether(
-                    cancelLeftAnimation(true, false, duration),
-                    cancelTopAnimation(true, false, duration),
-                    cancelRightAnimation(true, false, duration),
-                    cancelBottomAnimation(true, false, duration),
-                    acceptLeftAnimation(false, false, duration),
-                    acceptTopAnimation(false, false, duration),
-                    acceptRightAnimation(false, false, duration),
-                    acceptBottomAnimation(false, false, duration)
+                    cancelLeftAnimation(true, false, false, duration),
+                    cancelTopAnimation(true, false, false, duration),
+                    cancelRightAnimation(true, false, false, duration),
+                    cancelBottomAnimation(true, false, false, duration),
+                    acceptLeftAnimation(false, false, false, duration),
+                    acceptTopAnimation(false, false, false, duration),
+                    acceptRightAnimation(false, false, false, duration),
+                    acceptBottomAnimation(false, false, false, duration),
+                    cancelDrawableLeftAnimation(true, duration),
+                    cancelDrawableTopAnimation(true, duration),
+                    cancelDrawableRightAnimation(true, duration),
+                    cancelDrawableBottomAnimation(true, duration),
+                    acceptDrawableLeftAnimation(false, duration),
+                    acceptDrawableTopAnimation(false, duration),
+                    acceptDrawableRightAnimation(false, duration),
+                    acceptDrawableBottomAnimation(false, duration),
+                    acceptDrawableAlphaAnimation(false, duration),
+                    cancelDrawableAlphaAnimation(true, duration)
             )
             cardStatus = CardStatus.ACCEPTED
             animatorSet.start()
-            cardInteractionCallbacks?.itemAcceptClick(tag as String)
+            cardInteractionCallbacks?.onItemAcceptClick(tag as String)
         }
     }
 
@@ -569,41 +749,71 @@ class QuestionnaireCardView : View {
         animatorSet = AnimatorSet()
         if (duration == 0L) {
             animatorSet.playTogether(
-                    cancelLeftAnimation(false, false, duration),
-                    cancelTopAnimation(false, false, duration),
-                    cancelRightAnimation(false, false, duration),
-                    cancelBottomAnimation(false, false, duration),
-                    acceptLeftAnimation(true, false, duration),
-                    acceptTopAnimation(true, false, duration),
-                    acceptRightAnimation(true, false, duration),
-                    acceptBottomAnimation(true, false, duration)
+                    cancelLeftAnimation(false, false, false, duration),
+                    cancelTopAnimation(false, false, false, duration),
+                    cancelRightAnimation(false, false, false, duration),
+                    cancelBottomAnimation(false, false, false, duration),
+                    acceptLeftAnimation(true, false, false, duration),
+                    acceptTopAnimation(true, false, false, duration),
+                    acceptRightAnimation(true, false, false, duration),
+                    acceptBottomAnimation(true, false, false, duration),
+                    cancelDrawableLeftAnimation(false, duration),
+                    cancelDrawableTopAnimation(false, duration),
+                    cancelDrawableRightAnimation(false, duration),
+                    cancelDrawableBottomAnimation(false, duration),
+                    acceptDrawableLeftAnimation(false, duration),
+                    acceptDrawableTopAnimation(false, duration),
+                    acceptDrawableRightAnimation(false, duration),
+                    acceptDrawableBottomAnimation(false, duration),
+                    acceptDrawableAlphaAnimation(false, duration),
+                    cancelDrawableAlphaAnimation(false, duration)
             )
             animatorSet.start()
         } else if (cardStatus == CardStatus.CANCELED) {
             animatorSet.playTogether(
-                    cancelLeftAnimation(false, true, duration),
-                    cancelTopAnimation(false, true, duration),
-                    cancelRightAnimation(false, true, duration),
-                    cancelBottomAnimation(false, true, duration),
-                    acceptLeftAnimation(true, true, duration),
-                    acceptTopAnimation(true, true, duration),
-                    acceptRightAnimation(true, true, duration),
-                    acceptBottomAnimation(true, true, duration)
+                    cancelLeftAnimation(false, true, false, duration),
+                    cancelTopAnimation(false, true, false, duration),
+                    cancelRightAnimation(false, true, false, duration),
+                    cancelBottomAnimation(false, true, false, duration),
+                    acceptLeftAnimation(true, true, false, duration),
+                    acceptTopAnimation(true, true, false, duration),
+                    acceptRightAnimation(true, true, false, duration),
+                    acceptBottomAnimation(true, true, false, duration),
+                    cancelDrawableLeftAnimation(true, duration),
+                    cancelDrawableTopAnimation(true, duration),
+                    cancelDrawableRightAnimation(true, duration),
+                    cancelDrawableBottomAnimation(true, duration),
+                    acceptDrawableLeftAnimation(true, duration),
+                    acceptDrawableTopAnimation(true, duration),
+                    acceptDrawableRightAnimation(true, duration),
+                    acceptDrawableBottomAnimation(true, duration),
+                    acceptDrawableAlphaAnimation(true, duration),
+                    cancelDrawableAlphaAnimation(true, duration)
             )
             cardStatus = CardStatus.NONE
             animatorSet.start()
-            cardInteractionCallbacks?.itemNone(tag as String)
+            cardInteractionCallbacks?.onItemNone(tag as String)
             return
         } else if (cardStatus == CardStatus.ACCEPTED) {
             animatorSet.playTogether(
-                    cancelLeftAnimation(true, true, duration),
-                    cancelTopAnimation(true, true, duration),
-                    cancelRightAnimation(true, true, duration),
-                    cancelBottomAnimation(true, true, duration),
-                    acceptLeftAnimation(false, true, duration),
-                    acceptTopAnimation(false, true, duration),
-                    acceptRightAnimation(false, true, duration),
-                    acceptBottomAnimation(false, true, duration)
+                    cancelLeftAnimation(true, true, true, duration),
+                    cancelTopAnimation(true, true, true, duration),
+                    cancelRightAnimation(true, true, true, duration),
+                    cancelBottomAnimation(true, true, true, duration),
+                    acceptLeftAnimation(false, true, true, duration),
+                    acceptTopAnimation(false, true, true, duration),
+                    acceptRightAnimation(false, true, true, duration),
+                    acceptBottomAnimation(false, true, true, duration),
+                    cancelDrawableLeftAnimation(true, duration),
+                    cancelDrawableTopAnimation(true, duration),
+                    cancelDrawableRightAnimation(true, duration),
+                    cancelDrawableBottomAnimation(true, duration),
+                    acceptDrawableLeftAnimation(true, duration),
+                    acceptDrawableTopAnimation(true, duration),
+                    acceptDrawableRightAnimation(true, duration),
+                    acceptDrawableBottomAnimation(true, duration),
+                    acceptDrawableAlphaAnimation(true, duration),
+                    cancelDrawableAlphaAnimation(true, duration)
             )
             animatorSet.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationRepeat(animation: Animator?) {
@@ -618,51 +828,71 @@ class QuestionnaireCardView : View {
                 override fun onAnimationEnd(animation: Animator?) {
                     animatorSet = AnimatorSet()
                     animatorSet.playTogether(
-                            cancelLeftAnimation(false, false, duration),
-                            cancelTopAnimation(false, false, duration),
-                            cancelRightAnimation(false, false, duration),
-                            cancelBottomAnimation(false, false, duration),
-                            acceptLeftAnimation(true, false, duration),
-                            acceptTopAnimation(true, false, duration),
-                            acceptRightAnimation(true, false, duration),
-                            acceptBottomAnimation(true, false, duration)
+                            cancelLeftAnimation(false, false, false, duration),
+                            cancelTopAnimation(false, false, false, duration),
+                            cancelRightAnimation(false, false, false, duration),
+                            cancelBottomAnimation(false, false, false, duration),
+                            acceptLeftAnimation(true, false, true, duration),
+                            acceptTopAnimation(true, false, true, duration),
+                            acceptRightAnimation(true, false, true, duration),
+                            acceptBottomAnimation(true, false, true, duration),
+                            cancelDrawableLeftAnimation(false, duration),
+                            cancelDrawableTopAnimation(false, duration),
+                            cancelDrawableRightAnimation(false, duration),
+                            cancelDrawableBottomAnimation(false, duration),
+                            acceptDrawableLeftAnimation(true, duration),
+                            acceptDrawableTopAnimation(true, duration),
+                            acceptDrawableRightAnimation(true, duration),
+                            acceptDrawableBottomAnimation(true, duration),
+                            acceptDrawableAlphaAnimation(true, duration),
+                            cancelDrawableAlphaAnimation(false, duration)
                     )
                     cardStatus = CardStatus.CANCELED
                     animatorSet.start()
-                    cardInteractionCallbacks?.itemCancelClick(tag as String)
+                    cardInteractionCallbacks?.onItemCancelClick(tag as String)
                 }
 
             })
             animatorSet.start()
         } else {
             animatorSet.playTogether(
-                    cancelLeftAnimation(false, false, duration),
-                    cancelTopAnimation(false, false, duration),
-                    cancelRightAnimation(false, false, duration),
-                    cancelBottomAnimation(false, false, duration),
-                    acceptLeftAnimation(true, false, duration),
-                    acceptTopAnimation(true, false, duration),
-                    acceptRightAnimation(true, false, duration),
-                    acceptBottomAnimation(true, false, duration)
+                    cancelLeftAnimation(false, false, false, duration),
+                    cancelTopAnimation(false, false, false, duration),
+                    cancelRightAnimation(false, false, false, duration),
+                    cancelBottomAnimation(false, false, false, duration),
+                    acceptLeftAnimation(true, false, false, duration),
+                    acceptTopAnimation(true, false, false, duration),
+                    acceptRightAnimation(true, false, false, duration),
+                    acceptBottomAnimation(true, false, false, duration),
+                    cancelDrawableLeftAnimation(false, duration),
+                    cancelDrawableTopAnimation(false, duration),
+                    cancelDrawableRightAnimation(false, duration),
+                    cancelDrawableBottomAnimation(false, duration),
+                    acceptDrawableLeftAnimation(true, duration),
+                    acceptDrawableTopAnimation(true, duration),
+                    acceptDrawableRightAnimation(true, duration),
+                    acceptDrawableBottomAnimation(true, duration),
+                    acceptDrawableAlphaAnimation(true, duration),
+                    cancelDrawableAlphaAnimation(false, duration)
             )
             cardStatus = CardStatus.CANCELED
             animatorSet.start()
-            cardInteractionCallbacks?.itemCancelClick(tag as String)
+            cardInteractionCallbacks?.onItemCancelClick(tag as String)
         }
     }
 
-    private fun cancelLeftAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun cancelLeftAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) padding + buttonsRadius else if (shrink) {
             if (reverse) {
-                cancelLeft - buttonsRadius
+                padding
             } else {
-                cancelLeft + buttonsRadius
+                padding + buttonsRadius
             }
         } else {
             if (reverse) {
-                cancelLeft + maxRadius
+                padding
             } else {
-                cancelLeft - maxRadius
+                padding - maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(cancelLeft, newValue)
@@ -672,18 +902,18 @@ class QuestionnaireCardView : View {
         return animator
     }
 
-    private fun cancelTopAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun cancelTopAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
-                cancelTop - buttonsRadius
+                textHeight + 2 * padding
             } else {
-                cancelTop + buttonsRadius
+                textHeight + 2 * padding + buttonsRadius
             }
         } else {
             if (reverse) {
-                cancelTop + maxRadius
+                textHeight + 2 * padding
             } else {
-                cancelTop - maxRadius
+                textHeight + 2 * padding - maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(cancelTop, newValue)
@@ -693,18 +923,18 @@ class QuestionnaireCardView : View {
         return animator
     }
 
-    private fun cancelRightAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun cancelRightAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) padding + buttonsRadius else if (shrink) {
             if (reverse) {
-                cancelRight + buttonsRadius
+                padding + 2 * buttonsRadius
             } else {
-                cancelRight - buttonsRadius
+                padding + buttonsRadius
             }
         } else {
             if (reverse) {
-                cancelRight - maxRadius
+                padding + 2 * buttonsRadius
             } else {
-                cancelRight + maxRadius
+                padding + 2 * buttonsRadius + maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(cancelRight, newValue)
@@ -714,18 +944,18 @@ class QuestionnaireCardView : View {
         return animator
     }
 
-    private fun cancelBottomAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun cancelBottomAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
-                cancelBottom + buttonsRadius
+                textHeight + 2 * padding + 2 * buttonsRadius
             } else {
-                cancelBottom - buttonsRadius
+                textHeight + 2 * padding + buttonsRadius
             }
         } else {
             if (reverse) {
-                cancelBottom - maxRadius
+                textHeight + 2 * padding + 2 * buttonsRadius
             } else {
-                cancelBottom + maxRadius
+                textHeight + 2 * padding + 2 * buttonsRadius + maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(cancelBottom, newValue)
@@ -735,18 +965,18 @@ class QuestionnaireCardView : View {
         return animator
     }
 
-    private fun acceptLeftAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun acceptLeftAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) 2 * padding + 3 * buttonsRadius else if (shrink) {
             if (reverse) {
-                acceptLeft - buttonsRadius
+                2 * padding + 2 * buttonsRadius
             } else {
-                acceptLeft + buttonsRadius
+                2 * padding + 3 * buttonsRadius
             }
         } else {
             if (reverse) {
-                acceptLeft + maxRadius
+                2 * padding + 2 * buttonsRadius
             } else {
-                acceptLeft - maxRadius
+                2 * padding + 2 * buttonsRadius - maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(acceptLeft, newValue)
@@ -756,18 +986,18 @@ class QuestionnaireCardView : View {
         return animator
     }
 
-    private fun acceptTopAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun acceptTopAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
-                acceptTop - buttonsRadius
+                textHeight + 2 * padding
             } else {
-                acceptTop + buttonsRadius
+                textHeight + 2 * padding + buttonsRadius
             }
         } else {
             if (reverse) {
-                acceptTop + maxRadius
+                textHeight + 2 * padding
             } else {
-                acceptTop - maxRadius
+                textHeight + 2 * padding - maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(acceptTop, newValue)
@@ -777,18 +1007,18 @@ class QuestionnaireCardView : View {
         return animator
     }
 
-    private fun acceptRightAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun acceptRightAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) 2 * padding + 3 * buttonsRadius else if (shrink) {
             if (reverse) {
-                acceptRight + buttonsRadius
+                2 * padding + 4 * buttonsRadius
             } else {
-                acceptRight - buttonsRadius
+                2 * padding + 3 * buttonsRadius
             }
         } else {
             if (reverse) {
-                acceptRight - maxRadius
+                2 * padding + 4 * buttonsRadius
             } else {
-                acceptRight + maxRadius
+                2 * padding + 4 * buttonsRadius + maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(acceptRight, newValue)
@@ -798,18 +1028,18 @@ class QuestionnaireCardView : View {
         return animator
     }
 
-    private fun acceptBottomAnimation(shrink: Boolean, reverse: Boolean, duration: Long): Animator {
-        val newValue = if (shrink) {
+    private fun acceptBottomAnimation(shrink: Boolean, reverse: Boolean, toZero: Boolean, duration: Long): Animator {
+        val newValue = if (toZero) textHeight + 2 * padding + buttonsRadius else if (shrink) {
             if (reverse) {
-                acceptBottom + buttonsRadius
+                textHeight + 2 * padding + 2 * buttonsRadius
             } else {
-                acceptBottom - buttonsRadius
+                textHeight + 2 * padding + buttonsRadius
             }
         } else {
             if (reverse) {
-                acceptBottom - maxRadius
+                textHeight + 2 * padding + 2 * buttonsRadius
             } else {
-                acceptBottom + maxRadius
+                textHeight + 2 * padding + 2 * buttonsRadius + maxRadius
             }
         }
         val animator = ValueAnimator.ofFloat(acceptBottom, newValue)
@@ -817,6 +1047,160 @@ class QuestionnaireCardView : View {
         animator.duration = duration
         animator.addUpdateListener { acceptBottom = (it.animatedValue as Float) }
         return animator
+    }
+
+    private fun cancelDrawableLeftAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (padding + 2 * buttonsRadius / 3).toInt()
+                } else {
+                    cancelDrawableLeft - (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(cancelDrawableLeft, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { cancelDrawableLeft = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun cancelDrawableTopAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt()
+                } else {
+                    cancelDrawableTop - (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(cancelDrawableTop, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { cancelDrawableTop = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun cancelDrawableRightAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (padding + 4 * buttonsRadius / 3).toInt()
+                } else {
+                    cancelDrawableRight + (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(cancelDrawableRight, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { cancelDrawableRight = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun cancelDrawableBottomAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+                } else {
+                    cancelDrawableBottom + (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(cancelDrawableBottom, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { cancelDrawableBottom = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun acceptDrawableLeftAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (2 * padding + 2 * buttonsRadius + 2 * buttonsRadius / 3).toInt()
+                } else {
+                    acceptDrawableLeft - (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(acceptDrawableLeft, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { acceptDrawableLeft = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun acceptDrawableTopAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (textHeight + 2 * padding + 2 * buttonsRadius / 3).toInt()
+                } else {
+                    acceptDrawableTop - (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(acceptDrawableTop, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { acceptDrawableTop = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun acceptDrawableRightAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (2 * padding + 2 * buttonsRadius + 4 * buttonsRadius / 3).toInt()
+                } else {
+                    acceptDrawableRight + (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(acceptDrawableRight, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { acceptDrawableRight = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun acceptDrawableBottomAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    (textHeight + 2 * padding + 4 * buttonsRadius / 3).toInt()
+                } else {
+                    acceptDrawableBottom + (buttonsRadius * 0.2).toInt()
+                }
+        val animator = ValueAnimator.ofInt(acceptDrawableBottom, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { acceptDrawableBottom = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun acceptDrawableAlphaAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    255
+                } else {
+                    (255 * 0.7).toInt()
+                }
+        val animator = ValueAnimator.ofInt(acceptDrawableAlpha, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { acceptDrawableAlpha = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun cancelDrawableAlphaAnimation(reverse: Boolean, duration: Long): Animator {
+        val newValue =
+                if (reverse) {
+                    255
+                } else {
+                    (255 * 0.7).toInt()
+                }
+        val animator = ValueAnimator.ofInt(cancelDrawableAlpha, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration
+        animator.addUpdateListener { cancelDrawableAlpha = (it.animatedValue as Int) }
+        return animator
+    }
+    fun getBitmapFromVectorDrawable(context: Context, drawableId: Int): Bitmap {
+        var drawable = ContextCompat.getDrawable(context, drawableId)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = DrawableCompat.wrap(drawable).mutate()
+        }
+
+        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth,
+                drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        return bitmap
     }
 
 }

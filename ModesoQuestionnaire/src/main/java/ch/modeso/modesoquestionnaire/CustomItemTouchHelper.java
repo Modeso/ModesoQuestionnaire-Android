@@ -104,7 +104,7 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
 
     private static final int DEFAULT_SWIPE_ANIMATION_DURATION = 500;
 
-    private static final float ANGLE = 45f;
+    public static final float ANGLE = 45f;
 
     /**
      * The unit we are using to track velocity
@@ -271,9 +271,14 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             if (mVelocityTracker != null) {
                 mVelocityTracker.addMovement(event);
             }
-            if(mSelected != null) {
+            if (mSelected != null) {
                 if (mSelected.getAdapterPosition() != mTileLayoutManager.getCurSelectedPosition()) {
                     return false;
+                }
+                if (mSelected.itemView instanceof QuestionnaireCardView) {
+                    if (((QuestionnaireCardView) mSelected.itemView).getCardStatus() != QuestionnaireCardView.CardStatus.NONE) {
+                        return false;
+                    }
                 }
             }
             return mSelected != null;
@@ -973,8 +978,9 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         viewHolder.itemView.setRotation(alpha);
         viewHolder.itemView.setTranslationY(dY);
         if (viewHolder.itemView instanceof QuestionnaireCardView && !((QuestionnaireCardView) viewHolder.itemView).getMovingHorizontal()) {
-            if (mActivePointerId != ACTIVE_POINTER_ID_NONE) {
-                ((QuestionnaireCardView) viewHolder.itemView).onCardMovement(dY / max);
+            if (mActivePointerId != ACTIVE_POINTER_ID_NONE &&
+                    ((QuestionnaireCardView) mSelected.itemView).getCardStatus() == QuestionnaireCardView.CardStatus.NONE) {
+                ((QuestionnaireCardView) viewHolder.itemView).onCardMovement(dY / max, false);
                 ((QuestionnaireCardView) viewHolder.itemView).setCardMoving(true);
 
             } else {
@@ -1040,6 +1046,12 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
             // Tell the view holder it's time to restore the idle state
             DemoAdapter.ViewHolder itemViewHolder = (DemoAdapter.ViewHolder) viewHolder;
             itemViewHolder.onItemClear();
+            if (viewHolder.itemView.getParent() != null
+                    && viewHolder.itemView.getParent().getParent() != null
+                    && viewHolder.itemView.getParent().getParent().getParent() != null
+                    && viewHolder.itemView.getParent().getParent().getParent() instanceof MCompoundQuestionnaire) {
+                ((MCompoundQuestionnaire) viewHolder.itemView.getParent().getParent().getParent()).setCardMovingHorizontal(false);
+            }
         }
     }
 
@@ -1055,6 +1067,12 @@ class CustomItemTouchHelper extends RecyclerView.ItemDecoration
         final float deltaX = viewHolder.itemView.getX() + viewHolder.itemView.getMeasuredWidth() - (widthRightPart - def) - (mLowerSpace * (dismissedNo + 1));
         viewHolder.setIsRecyclable(true);
         if (viewHolder instanceof DemoAdapter.ViewHolder) {
+            if (viewHolder.itemView.getParent() != null
+                    && viewHolder.itemView.getParent().getParent() != null
+                    && viewHolder.itemView.getParent().getParent().getParent() != null
+                    && viewHolder.itemView.getParent().getParent().getParent() instanceof MCompoundQuestionnaire) {
+                ((MCompoundQuestionnaire) viewHolder.itemView.getParent().getParent().getParent()).setCardMovingHorizontal(true);
+            }
             mAdapter.onItemDismiss((DemoAdapter.ViewHolder) viewHolder, deltaX);
         }
         dismissedNo++;

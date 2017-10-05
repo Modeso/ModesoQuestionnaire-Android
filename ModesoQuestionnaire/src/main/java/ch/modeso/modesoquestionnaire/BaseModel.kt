@@ -1,5 +1,5 @@
 package ch.modeso.modesoquestionnaire
-
+/* ktlint-disable no-wildcard-imports */
 import java.util.*
 
 /**

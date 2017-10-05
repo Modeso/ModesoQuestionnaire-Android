@@ -1,5 +1,8 @@
 package ch.modeso.modesoquestionnaire
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Canvas
@@ -10,6 +13,7 @@ import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 
 /**
  * Created by Hazem on 7/31/2017.
@@ -30,7 +34,20 @@ class QuestionnaireIndicator : View {
             invalidate()
         }
 
+    var drawIndicator: Boolean  = true
+        get() = field
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     var lowerColor: Int = transparentColor
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var duration: Float = 1000f
         set(value) {
             field = value
             invalidate()
@@ -57,7 +74,7 @@ class QuestionnaireIndicator : View {
     var currentPosition: Int = 0
         set(value) {
             field = value
-            invalidate()
+            animateIndicator()
         }
 
     private val colorList: MutableList<Int> = mutableListOf()
@@ -76,6 +93,9 @@ class QuestionnaireIndicator : View {
 
     fun colorListAddAll(collection: Collection<Int>) {
         colorList.addAll(collection)
+        itemSize = measuredWidth.toFloat() / colorList.size
+        leftBound = (itemSize * currentPosition /*+ itemSize / 2*/).toInt()
+        rightBound = indicator.intrinsicWidth + leftBound
         invalidate()
     }
 
@@ -84,6 +104,21 @@ class QuestionnaireIndicator : View {
         invalidate()
     }
 
+    private var leftBound: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+    private var itemSize: Float = 0f
+        set(value) {
+            field = value
+            invalidate()
+        }
+    private var rightBound: Int = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     constructor(context: Context) : this(context, null)
 
@@ -119,6 +154,9 @@ class QuestionnaireIndicator : View {
             bgHeight = measuredHeight.toFloat() / fraction
             upperLowerHeight = (measuredHeight.toFloat() - bgHeight) / 2
         }
+        itemSize = measuredWidth.toFloat() / colorList.size
+        leftBound = (itemSize * currentPosition /*+ itemSize / 2*/).toInt()
+        rightBound = (0 /*indicator.intrinsicWidth */+ leftBound).toInt()
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -141,17 +179,46 @@ class QuestionnaireIndicator : View {
 
         if (colorList.isEmpty()) {
             indicator.setBounds(0, 0, indicator.intrinsicWidth, measuredHeight)
-            indicator.draw(canvas)
+            if(drawIndicator)
+                indicator.draw(canvas)
         } else {
-            val itemSize: Float = measuredWidth.toFloat() / colorList.size
             for (i in 0..colorList.size - 1) {
                 itemPaint.color = colorList[i]
                 itemRectF.set(itemSize * i, upperLowerHeight, itemSize * i + itemSize, upperLowerHeight + bgHeight)
                 canvas?.drawRect(itemRectF, itemPaint)
             }
 
-            indicator.setBounds((itemSize * currentPosition + itemSize / 2).toInt(), 0, indicator.intrinsicWidth + (itemSize * currentPosition + itemSize / 2).toInt(), measuredHeight)
-            indicator.draw(canvas)
+            indicator.setBounds(leftBound, 0, rightBound+itemSize.toInt()-indicator.intrinsicWidth, (upperLowerHeight+bgHeight).toInt()/*measuredHeight*/)
+            if(drawIndicator)
+                indicator.draw(canvas)
         }
+    }
+
+    private fun animateIndicator() {
+        val animatorSet: AnimatorSet = AnimatorSet()
+        animatorSet.playTogether(
+                animateLeftIndicator(),
+                animateRightIndicator()
+        )
+        animatorSet.start()
+    }
+
+    private fun animateLeftIndicator(): Animator {
+        val newValue = (itemSize * currentPosition/* + itemSize / 2*/).toInt()
+
+        val animator = ValueAnimator.ofInt(leftBound, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration.toLong()
+        animator.addUpdateListener { leftBound = (it.animatedValue as Int) }
+        return animator
+    }
+
+    private fun animateRightIndicator(): Animator {
+        val newValue = indicator.intrinsicWidth + (itemSize * currentPosition /*+ itemSize / 2*/).toInt()
+        val animator = ValueAnimator.ofInt(rightBound, newValue)
+        animator.interpolator = AccelerateDecelerateInterpolator()
+        animator.duration = duration.toLong()
+        animator.addUpdateListener { rightBound = (it.animatedValue as Int) }
+        return animator
     }
 }

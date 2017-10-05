@@ -8,10 +8,12 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.animation.AnimatorCompatHelper
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatDelegate
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.RecyclerView
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -24,7 +26,9 @@ import android.widget.TextView
  * Created by Hazem on 7/28/2017.
  */
 class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
-
+    companion object {
+        val TAG = MCompoundQuestionnaire.javaClass.simpleName
+    }
     var indicatorBackgroundColor: Int = ContextCompat.getColor(context, R.color.colorPrimaryDark)
         set(value) {
             field = value
@@ -43,7 +47,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             questionnaireIndicator?.lowerColor = value
         }
 
-    var indicatorIcon: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_indicator)
+    var indicatorIcon: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_indicator) as Drawable//ContextCompat.getDrawable(context, R.drawable.ic_indicator)
         set(drawable) {
             field = drawable
             questionnaireIndicator?.indicator = drawable
@@ -56,11 +60,26 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             questionnaireIndicator?.fraction = value
         }
 
+    var buttonAnimationDuration: Float = 1000f
+        set(value) {
+            field = value
+            invalidate()
+            questionnaireIndicator?.duration = value
+            demoAdapter?.buttonAnimationDuration = value
+        }
+
     var cardTextColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
         set(value) {
             field = value
             demoAdapter?.cardTextColor = value
         }
+
+    var cardTextSecondColor: Int = ContextCompat.getColor(context, R.color.colorAccent)
+        set(value) {
+            field = value
+            demoAdapter?.cardTextSecondColor = value
+        }
+
     var acceptColor: Int = ContextCompat.getColor(context, R.color.colorAccept)
         set(value) {
             field = value
@@ -85,24 +104,24 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             demoAdapter?.notApplicableColor = value
         }
 
-    var acceptDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_check)
+    var acceptDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_check)//ContextCompat.getDrawable(context, R.drawable.ic_check)
         set(value) {
             field = value
             demoAdapter?.acceptDrawable = value
         }
 
-    var cancelDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_close)
+    var cancelDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_close) //ContextCompat.getDrawable(context, R.drawable.ic_close)
         set(value) {
             field = value
             demoAdapter?.cancelDrawable = value
         }
 
-    var notApplicableDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_not_applicable)
+    var notApplicableDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_not_applicable)//ContextCompat.getDrawable(context, R.drawable.ic_not_applicable)
         set(value) {
             field = value
             demoAdapter?.notApplicableDrawable = value
         }
-    var notApplicableArrowDrawable: Drawable = ContextCompat.getDrawable(context, R.drawable.ic_arrow_downward)
+    var notApplicableArrowDrawable: Drawable = Utils.getVectorDrawable(context, R.drawable.ic_arrow_downward)
         set(value) {
             field = value
             invalidate()
@@ -128,11 +147,48 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     private val topPadding = (30 * density).toInt()
     private val bottomView = (30 * density) + 20 * density
 
+    var cardMoving = false
+        set(value) {
+            if (!value) {
+                textHeight = measuredHeight - bottomView
+            }
+            field = value
+            invalidate()
+        }
+    private var textVisible = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+    private var textHeight = measuredHeight - bottomView
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    private var textRotation = 0f
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    private var textRotationY = textHeight
+        set(value) {
+            field = value
+            invalidate()
+        }
+    var cardMovingHorizontal = false
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     constructor(context: Context) : this(context, null)
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         init(attrs, defStyleAttr)
     }
 
@@ -144,20 +200,27 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
     private fun init(attrs: AttributeSet?, defStyleAttr: Int = 0, defStyleRes: Int = 0) {
         setWillNotDraw(false)
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.MCompoundQuestionnaire, defStyleAttr, defStyleRes)
-        indicatorIcon = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqIndicatorDrawableIcon) ?: indicatorIcon
+        indicatorIcon = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqIndicatorDrawableIcon, R.drawable.ic_indicator)) ?: indicatorIcon
         indicatorFraction = typedArray.getFloat(R.styleable.MCompoundQuestionnaire_mcqIndicatorSizeFraction, indicatorFraction)
+        buttonAnimationDuration = typedArray.getFloat(R.styleable.MCompoundQuestionnaire_mcqButtonAnimationDuration, buttonAnimationDuration)
         indicatorUpperColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorUpperColor, indicatorUpperColor)
         indicatorLowerColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorLowerColor, indicatorLowerColor)
         indicatorBackgroundColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqIndicatorBackgroundColor, indicatorBackgroundColor)
         cardTextColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqCardTextColor, cardTextColor)
+        cardTextSecondColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqCardTextSecondColor, cardTextSecondColor)
         acceptColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqAcceptColor, acceptColor)
         cancelColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqCancelColor, cancelColor)
         notApplicableColor = typedArray.getColor(R.styleable.MCompoundQuestionnaire_mcqNotApplicableColor, notApplicableColor)
         cardBackgroundDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqCardBackgroundDrawable) ?: cardBackgroundDrawable
-        acceptDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqAcceptDrawable) ?: acceptDrawable
-        cancelDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqCancelDrawable) ?: cancelDrawable
-        notApplicableDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqNotApplicableDrawable) ?: notApplicableDrawable
-        notApplicableArrowDrawable = typedArray.getDrawable(R.styleable.MCompoundQuestionnaire_mcqNotApplicableArrowDrawable) ?: notApplicableArrowDrawable
+        acceptDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqAcceptDrawable, R.drawable.ic_check)) ?: acceptDrawable
+        cancelDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqCancelDrawable, R.drawable.ic_close)) ?: cancelDrawable
+        notApplicableDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqNotApplicableDrawable, R.drawable.ic_not_applicable)) ?: notApplicableDrawable
+        notApplicableArrowDrawable = Utils.getVectorDrawable(context, typedArray.getResourceId(R.styleable.
+                MCompoundQuestionnaire_mcqNotApplicableArrowDrawable, R.drawable.ic_arrow_downward)) ?: notApplicableArrowDrawable
         typedArray.recycle()
 
         orientation = LinearLayout.VERTICAL
@@ -183,6 +246,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         questionnaireIndicator?.upperColor = indicatorUpperColor
         questionnaireIndicator?.bgColor = indicatorBackgroundColor
         questionnaireIndicator?.indicator = indicatorIcon
+        questionnaireIndicator?.duration = buttonAnimationDuration
         questionnaireIndicator?.colorListAddAll(items.map { getCardColor(it.status) })
         addView(questionnaireIndicator)
     }
@@ -194,7 +258,7 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         recyclerView?.itemAnimator = DefaultItemAnimator()
         val demoList = mutableListOf<BaseModel>()
         demoList.addAll(items)
-        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, cardTextColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable, bottomFrame)
+        demoAdapter = DemoAdapter(context, this, progressBarSize + topPadding + (bottomView * 1.5f), demoList, buttonAnimationDuration, cardTextColor, cardTextSecondColor, acceptColor, cancelColor, notApplicableColor, cardBackgroundDrawable, acceptDrawable, cancelDrawable, notApplicableDrawable, bottomFrame)
         tileManager.attach(recyclerView, 0)
 //        demoAdapter?.setOnItemClickListener(object : DemoAdapter.OnItemClickListener {
 //            override fun onItemClick(view: View, position: Int) {
@@ -211,6 +275,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                         val realIndex = items.indexOf(realItem)
                         if (realIndex > -1) {
                             questionnaireIndicator?.currentPosition = realIndex
+                            questionnaireIndicator?.drawIndicator = !((realIndex == items.size-1) &&
+                                    (realItem.status != QuestionnaireCardView.CardStatus.NONE))
+
                         }
                     }
                 }
@@ -231,13 +298,15 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         addView(frameContainer)
     }
 
-    override fun itemAcceptClick(itemId: String) {
+    override fun onItemAcceptClick(itemId: String) {
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
             if (realItem != null) {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, acceptColor)
+                    if(realIndex == items.size-1)
+                        questionnaireIndicator?.drawIndicator = false
                     items[realIndex].status = QuestionnaireCardView.CardStatus.ACCEPTED
                 }
             }
@@ -246,19 +315,26 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val adapterIndex = demoAdapter!!.items.indexOf(adapterItem)
                 if (adapterIndex > -1) {
                     demoAdapter!!.items[adapterIndex].status = QuestionnaireCardView.CardStatus.ACCEPTED
+                    //Move to the next Item smoothly
+                    postDelayed({recyclerView?.smoothScrollToPosition(adapterIndex+1)},300)
                 }
             }
         }
-        cardInteractionCallBacks?.itemAcceptClick(itemId)
+        cardInteractionCallBacks?.onItemAcceptClick(itemId)
+        if (checkQuestionnaire()) {
+            cardInteractionCallBacks?.onQuestionnaireFinish()
+        }
     }
 
-    override fun itemCancelClick(itemId: String) {
+    override fun onItemCancelClick(itemId: String) {
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
             if (realItem != null) {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, cancelColor)
+                    if(realIndex == items.size-1)
+                        questionnaireIndicator?.drawIndicator = false
                     items[realIndex].status = QuestionnaireCardView.CardStatus.CANCELED
                 }
             }
@@ -267,19 +343,26 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val adapterIndex = demoAdapter!!.items.indexOf(adapterItem)
                 if (adapterIndex > -1) {
                     demoAdapter!!.items[adapterIndex].status = QuestionnaireCardView.CardStatus.CANCELED
+                    //Move to the next Item smoothly
+                    postDelayed({recyclerView?.smoothScrollToPosition(adapterIndex+1)},300)
                 }
             }
         }
-        cardInteractionCallBacks?.itemCancelClick(itemId)
+        cardInteractionCallBacks?.onItemCancelClick(itemId)
+        if (checkQuestionnaire()) {
+            cardInteractionCallBacks?.onQuestionnaireFinish()
+        }
     }
 
-    override fun itemNone(itemId: String) {
+    override fun onItemNone(itemId: String) {
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
             if (realItem != null) {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, indicatorBackgroundColor)
+                    if(realIndex == items.size-1)
+                        questionnaireIndicator?.drawIndicator = true
                     items[realIndex].status = QuestionnaireCardView.CardStatus.NONE
                 }
             }
@@ -291,7 +374,8 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 }
             }
         }
-        cardInteractionCallBacks?.itemNone(itemId)
+        cardInteractionCallBacks?.onItemNone(itemId)
+
     }
 
     fun updateList(itemsList: MutableList<BaseModel>) {
@@ -312,19 +396,35 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-        if (dismissNo == 0) {
+    override fun dispatchDraw(canvas: Canvas?) {
+        super.dispatchDraw(canvas)
+        if (cardMoving && textVisible) {
+            textView.isDrawingCacheEnabled = true
+            textView.setTextColor(notApplicableColor)
+            textView.textSize = 16f
+            textView.gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
+            textView.measure(View.MeasureSpec.makeMeasureSpec(measuredWidth, View.MeasureSpec.EXACTLY)
+                    , View.MeasureSpec.makeMeasureSpec((bottomView).toInt(), View.MeasureSpec.AT_MOST))
+            textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+            textView.text = context.getString(R.string.not_applicable)
+            textView.typeface = Typeface.DEFAULT_BOLD
+            textView.rotation = textRotation
+            if (textView.drawingCache != null) {
+                canvas?.rotate(textRotation, 0f, textRotationY)
+                canvas?.drawBitmap(textView.drawingCache, 0f, textHeight, textPaint)
+            }
+            textView.isDrawingCacheEnabled = false
+        } else if (dismissNo == 0 && !cardMovingHorizontal) {
             notApplicableArrowDrawable.bounds.set(
                     (measuredWidth / 2 - 2 * progressBarSize / 3).toInt(),
-                    (measuredHeight - bottomView - 3 * progressBarSize / 4).toInt(),
+                    (measuredHeight - bottomView - 3 * progressBarSize / 4 - topPadding / 3).toInt(),
                     (measuredWidth / 2 + 2 * progressBarSize / 3).toInt(),
-                    (measuredHeight - bottomView + progressBarSize / 4).toInt()
+                    (measuredHeight - bottomView + progressBarSize / 4 - topPadding / 3).toInt()
             )
             notApplicableArrowDrawable.draw(canvas)
 
             textView.isDrawingCacheEnabled = true
-            textView.setTextColor(notApplicableColor)
+            textView.setTextColor(cardTextColor)
             textView.textSize = 16f
             textView.gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
             textView.measure(View.MeasureSpec.makeMeasureSpec(measuredWidth, View.MeasureSpec.EXACTLY)
@@ -339,7 +439,23 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         }
     }
 
-    override fun itemDismiss(itemId: String) {
+    fun onCardMoving(fraction: Float, cardY: Float, cardHeight: Int, pulling: Boolean) {
+        textHeight = measuredHeight - bottomView - (textHeight * fraction)
+        Log.d(TAG, "textHeight: $textHeight, cardY+cardHeight: ${cardY + cardHeight}")
+        textVisible = dismissNo == 0
+        cardMovingHorizontal = true
+        textRotationY = (cardY + cardHeight / 2)
+        if (textHeight <= cardY + cardHeight - 3 * topPadding / 2) {
+            textHeight = cardY + cardHeight - 3 * topPadding / 2
+            textVisible = true
+        }
+        if (pulling && dismissNo == 1) {
+            textVisible = true
+        }
+        textRotation = CustomItemTouchHelper.ANGLE * fraction
+    }
+
+    override fun onItemDismiss(itemId: String) {
         dismissNo++
         if (demoAdapter != null) {
             val realItem = items.find { it.id.contentEquals(itemId) }
@@ -347,12 +463,22 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
                 val realIndex = items.indexOf(realItem)
                 if (realIndex > -1) {
                     questionnaireIndicator?.changeColorAtPosition(realIndex, notApplicableColor)
+                    if(realIndex == items.size-1)
+                    questionnaireIndicator?.drawIndicator = false
+                    val lastItem =  if (demoAdapter?.items?.isEmpty()!! ) null else demoAdapter?.items?.last()
+                    if(realIndex>0 && lastItem != null && lastItem == realItem )
+                        if(demoAdapter?.itemCount!! > 1)
+                            recyclerView?.smoothScrollToPosition(demoAdapter?.itemCount!!-2)//realIndex - 1)
                 }
                 realItem.status = QuestionnaireCardView.CardStatus.NOT_APPLICABLE
             }
         }
         invalidate()
-        cardInteractionCallBacks?.itemDismiss(itemId)
+        cardInteractionCallBacks?.onItemDismiss(itemId)
+        if (checkQuestionnaire()) {
+            cardInteractionCallBacks?.onQuestionnaireFinish()
+        }
+
     }
 
     fun onItemUnDismiss(view: View) {
@@ -368,23 +494,36 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
             realItem.status = QuestionnaireCardView.CardStatus.NONE
             (view.parent as ViewGroup).removeView(view)
             dismissNo--
+            if (dismissNo == 0) {
+                cardMovingHorizontal = false
+            }
             val position = items.filter { it.status != QuestionnaireCardView.CardStatus.NOT_APPLICABLE }.indexOf(realItem)
-            if (tileManager.mCurSelectedPosition == position) {
+            Log.d(TAG,"tileManager.mCurSelectedPosition=${tileManager.mCurSelectedPosition} while position = ${position}")
+            if (tileManager.mCurSelectedPosition == position && !demoAdapter?.items?.contains(realItem)!!) {
                 demoAdapter?.items?.add(position, realItem)
                 isUnDismiss = false
-                cardInteractionCallBacks?.itemNone(id)
+                cardInteractionCallBacks?.onItemNone(id)
                 demoAdapter?.notifyItemInserted(position)
+
             } else {
-                recyclerView?.smoothScrollToPosition(position)
-                val scrollListener = ScrolledListener(position, realItem, demoAdapter) {
+                // Check if all items are dismissed
+                var truePos:Int? = position
+                if( demoAdapter?.items?.size == 0){//all items are dismissed
+                    truePos = demoAdapter?.items?.size!!
+                   demoAdapter?.items?.add(truePos!!, realItem)
                     isUnDismiss = false
-                    cardInteractionCallBacks?.itemNone(id)
+                    cardInteractionCallBacks?.onItemNone(id)
+                    demoAdapter?.notifyDataSetChanged()
+                }else {
+                    recyclerView?.smoothScrollToPosition(truePos!!)
+                    demoAdapter?.items?.add(position, realItem)
+                    isUnDismiss = false
+                    cardInteractionCallBacks?.onItemNone(id)
+                    demoAdapter?.notifyItemInserted(position)
                 }
-                recyclerView?.addOnScrollListener(scrollListener)
             }
             itemTouchHelper.dismissedNo--
             redrawDismissedChild()
-
         }
     }
 
@@ -420,20 +559,12 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         }
     }
 
-    private class ScrolledListener(val position: Int, val realItem: BaseModel, val demoAdapter: DemoAdapter?, val done: () -> Unit) : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
+    private fun checkQuestionnaire(): Boolean {
+        val noneItems = items.filter { it.status == QuestionnaireCardView.CardStatus.NONE }
+        return noneItems.isEmpty()
+    }
 
-        }
+    override fun onQuestionnaireFinish() {
 
-        override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
-            super.onScrollStateChanged(recyclerView, newState)
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                demoAdapter?.items?.add(position, realItem)
-                done()
-                demoAdapter?.notifyItemInserted(position)
-                recyclerView?.removeOnScrollListener(this)
-            }
-        }
     }
 }

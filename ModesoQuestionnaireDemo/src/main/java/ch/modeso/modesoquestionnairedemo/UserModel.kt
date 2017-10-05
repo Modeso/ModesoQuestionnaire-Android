@@ -2,6 +2,7 @@ package ch.modeso.modesoquestionnairedemo
 
 import ch.modeso.modesoquestionnaire.BaseModel
 import ch.modeso.modesoquestionnaire.QuestionnaireCardView
+/* ktlint-disable no-wildcard-imports */
 import java.util.*
 
 /**
