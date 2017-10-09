@@ -36,7 +36,7 @@ It enable creating questionnaire with a lot of features and ease of use
 - **Step 2:** Add the dependency to your module build.gradle
   ```
   	dependencies {
-	        compile 'com.github.Modeso:ModesoQuestionnaire-Android:development-SNAPSHOT'
+	        compile 'com.github.Modeso:ModesoQuestionnaire-Android:1.3.2'
 	}
   ```
 
@@ -44,7 +44,7 @@ It enable creating questionnaire with a lot of features and ease of use
 
 - in **XML**
 ```
-<ch.modeso.mcompoundquestionnaire.MCompoundQuestionnaire
+<ch.modeso.modesoquestionnaire.MCompoundQuestionnaire
         android:id="@+id/mcompound_questionnaire"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
