@@ -6,6 +6,7 @@ import android.animation.ValueAnimator
 import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
@@ -82,14 +83,9 @@ class QuestionnaireIndicator : View {
     var bgHeight: Float = 0f
     var upperLowerHeight: Float = 0f
 
-    val bgPaint = Paint()
-    val bgRectF = RectF()
     val itemPaint = Paint()
     val itemRectF = RectF()
-    val upperPaint = Paint()
-    val upperRectF = RectF()
-    val lowerPaint = Paint()
-    val lowerRectF = RectF()
+
 
     fun colorListAddAll(collection: Collection<Int>) {
         colorList.addAll(collection)
@@ -163,20 +159,7 @@ class QuestionnaireIndicator : View {
         super.onDraw(canvas)
         if (Math.abs(fraction) == 1f) {
             setBackgroundColor(bgColor)
-        } else {
-            bgPaint.color = bgColor
-            bgRectF.set(0f, upperLowerHeight, measuredWidth.toFloat(), upperLowerHeight + bgHeight)
-            canvas?.drawRect(bgRectF, bgPaint)
-
-            upperPaint.color = upperColor
-            upperRectF.set(0f, 0f, measuredWidth.toFloat(), upperLowerHeight)
-            canvas?.drawRect(upperRectF, upperPaint)
-
-            lowerPaint.color = lowerColor
-            lowerRectF.set(0f, upperLowerHeight + bgHeight, measuredWidth.toFloat(), 2 * upperLowerHeight + bgHeight)
-            canvas?.drawRect(lowerRectF, lowerPaint)
         }
-
         if (colorList.isEmpty()) {
             indicator.setBounds(0, 0, indicator.intrinsicWidth, measuredHeight)
             if(drawIndicator)
@@ -184,10 +167,9 @@ class QuestionnaireIndicator : View {
         } else {
             for (i in 0..colorList.size - 1) {
                 itemPaint.color = colorList[i]
-                itemRectF.set(itemSize * i, upperLowerHeight, itemSize * i + itemSize, upperLowerHeight + bgHeight)
+                itemRectF.set(itemSize * i, (indicator.intrinsicHeight)/4.0f, itemSize * i + itemSize,(indicator.intrinsicHeight)/2.0f)
                 canvas?.drawRect(itemRectF, itemPaint)
             }
-
             indicator.setBounds(leftBound, 0, rightBound+itemSize.toInt()-indicator.intrinsicWidth, (upperLowerHeight+bgHeight).toInt()/*measuredHeight*/)
             if(drawIndicator)
                 indicator.draw(canvas)

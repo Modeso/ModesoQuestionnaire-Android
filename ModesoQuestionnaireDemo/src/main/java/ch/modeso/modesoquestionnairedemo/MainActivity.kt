@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         //Toast.makeText(this, "item $itemId Accepted", Toast.LENGTH_SHORT).show()
         val items = title.filter { it.id == itemId }
         items.forEach {
-           // Toast.makeText(this, "item ${it.userAdditionalInfo} Accepted", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "item ${it.userAdditionalInfo} Accepted", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         //Toast.makeText(this, "item $itemId Canceled", Toast.LENGTH_SHORT).show()
         val items = title.filter { it.id == itemId }
         items.forEach {
-           // Toast.makeText(this, "item ${it.userAdditionalInfo} Canceled", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "item ${it.userAdditionalInfo} Canceled", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -56,12 +56,12 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
         //Toast.makeText(this, "item $itemId Dismissed", Toast.LENGTH_SHORT).show()
         val items = title.filter { it.id == itemId }
         items.forEach {
-           // Toast.makeText(this, "item ${it.userAdditionalInfo} Dismissed", Toast.LENGTH_SHORT).show()
+            // Toast.makeText(this, "item ${it.userAdditionalInfo} Dismissed", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onQuestionnaireFinish() {
-       // Toast.makeText(this, "Questionnaire is Finished thank you", Toast.LENGTH_SHORT).show()
+        // Toast.makeText(this, "Questionnaire is Finished thank you", Toast.LENGTH_SHORT).show()
     }
 
 }
