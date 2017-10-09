@@ -44,7 +44,7 @@ It enable creating questionnaire with a lot of features and ease of use
 
 - in **XML**
 ```
-<ch.modeso.mcompoundquestionnaire.MCompoundQuestionnaire
+<ch.modeso.modesoquestionnaire.MCompoundQuestionnaire
         android:id="@+id/mcompound_questionnaire"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
