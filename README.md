@@ -36,7 +36,7 @@ It enable creating questionnaire with a lot of features and ease of use
 - **Step 2:** Add the dependency to your module build.gradle
   ```
   	dependencies {
-	        compile 'com.github.Modeso:ModesoQuestionnaire-Android:1.3.1'
+	        compile 'com.github.Modeso:ModesoQuestionnaire-Android:1.3.2'
 	}
   ```
 
