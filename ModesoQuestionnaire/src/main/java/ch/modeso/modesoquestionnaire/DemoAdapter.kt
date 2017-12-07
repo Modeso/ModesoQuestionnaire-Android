@@ -95,6 +95,7 @@ class DemoAdapter(val context: Context, private val callbacks: CardInteractionCa
         v.cancelDrawable = cancelDrawable
         v.notApplicableDrawable = notApplicableDrawable
         v.bgDrawable = cardBackgroundDrawable
+        v.reset()
         val height = (parent.measuredHeight - otherViewsHeight).toInt()
         val width = parent.measuredWidth - (100 * mDensity)
         v.layoutParams = RecyclerView.LayoutParams(width, height)

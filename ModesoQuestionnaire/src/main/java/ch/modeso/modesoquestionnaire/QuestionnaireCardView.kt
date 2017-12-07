@@ -21,6 +21,13 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.support.v4.graphics.drawable.DrawableCompat
+import android.view.Display
+import android.view.WindowManager
+import android.util.DisplayMetrics
+
+
+
+
 
 /**
  * Created by Hazem on 7/27/2017
@@ -464,15 +471,33 @@ class QuestionnaireCardView : View {
             }
             textView.textSize = textSize
             textView.gravity = Gravity.START
+            //Check size for the Bitmap
+            ////////////////////////////////////////////////////
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val display = wm.defaultDisplay
+            val metrics = DisplayMetrics()
+            display.getMetrics(metrics)
+            val height = metrics.heightPixels
+            /////////////////////////////
             textView.measure(View.MeasureSpec.makeMeasureSpec(textWidth.toInt(), View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(textHeight.toInt(), View.MeasureSpec.EXACTLY))
+                    View.MeasureSpec.makeMeasureSpec(Math.min(height,Math.abs(textHeight.toInt())), View.MeasureSpec.EXACTLY))
             textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
             textView.text = question
+            Log.e("Error","TextView width : ${textView.width} Height :${textHeight}")
             if (textView.drawingCache != null) {
                 canvas?.drawBitmap(textView.drawingCache, padding, padding, textPaint)
             }
             textView.isDrawingCacheEnabled = false
+            if (textView.drawingCache != null)
+                textView.drawingCache.recycle();
         }
+    }
+
+    fun reset(){
+        if (textView.drawingCache != null) {
+            textView.drawingCache.recycle()
+        }
+        textView.isDrawingCacheEnabled = false
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
