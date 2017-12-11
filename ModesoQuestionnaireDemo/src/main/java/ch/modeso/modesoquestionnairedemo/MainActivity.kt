@@ -2,6 +2,8 @@ package ch.modeso.modesoquestionnairedemo
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.widget.Toast
 import ch.modeso.modesoquestionnaire.CardInteractionCallbacks
 import ch.modeso.modesoquestionnaire.QuestionnaireCardView
 /* ktlint-disable no-wildcard-imports */
@@ -61,7 +63,19 @@ class MainActivity : AppCompatActivity(), CardInteractionCallbacks {
     }
 
     override fun onQuestionnaireFinish() {
-        // Toast.makeText(this, "Questionnaire is Finished thank you", Toast.LENGTH_SHORT).show()
+        showFinalStat()
+    }
+
+    private fun showFinalStat(){
+
+        val  accepted = title.filter { it.status ==
+                QuestionnaireCardView.CardStatus.ACCEPTED  }.size
+        val canceled = title.filter { it.status == QuestionnaireCardView.CardStatus.CANCELED }.size
+        val notApplicable =title.filter{it.status == QuestionnaireCardView.CardStatus.NOT_APPLICABLE}.size
+        val noneItems = title.filter { it.status == QuestionnaireCardView.CardStatus.NONE }.size
+
+        Toast.makeText(this, "${accepted} items accepted\n${canceled} items canceled\n ${notApplicable} " +
+                " items Not Applicable\n${noneItems} items ignored",Toast.LENGTH_LONG).show()
     }
 
 }

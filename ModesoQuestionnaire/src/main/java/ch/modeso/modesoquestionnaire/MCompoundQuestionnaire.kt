@@ -238,6 +238,9 @@ class MCompoundQuestionnaire : LinearLayout, CardInteractionCallbacks {
         textView.layoutParams = this.layoutParams
     }
 
+    fun getList():List<BaseModel>{return items}
+
+
     private fun initProgressBar() {
         questionnaireIndicator = QuestionnaireIndicator(context)
         questionnaireIndicator?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, progressBarSize)
