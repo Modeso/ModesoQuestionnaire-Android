@@ -100,7 +100,7 @@ It enable creating questionnaire with a lot of features and ease of use
 
 ## Credits
 
-ModesoQuestionnaire-Android is owned and maintained by [Modeso](http://modeso.ch). You can follow them on Twitter at [@modeso_ch](https://twitter.com/modeso_ch) for project updates and releases.
+ModesoQuestionnaire-Android is owned and maintained by [Modeso](http://modeso.ch) Using [Yaroslav Zubko](https://dribbble.com/Yar_Z)'s [design](https://dribbble.com/shots/2926913--4-Compound-Questionnaire). You can follow them on Twitter at [@modeso_ch](https://twitter.com/modeso_ch) for project updates and releases.
 
 ## License
 
